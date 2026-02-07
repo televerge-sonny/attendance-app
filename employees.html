@@ -84,12 +84,22 @@
     th { background: #f8fafc; color: #64748b; font-size: 11px; text-transform: uppercase; padding: 15px; text-align: left; }
     td { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
 
+    /* Updated Action Group for side-by-side buttons */
+    .action-group {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
     .btn-edit, .btn-delete { 
       border: none; border-radius: 8px; cursor: pointer; 
       width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; 
+      transition: 0.2s;
     }
-    .btn-edit { background: #e1f5fe; color: #03a9f4; margin-right: 5px; }
+    .btn-edit { background: #e1f5fe; color: #03a9f4; }
     .btn-delete { background: #ffebee; color: #f44336; }
+    .btn-edit:hover { background: #03a9f4; color: white; }
+    .btn-delete:hover { background: #f44336; color: white; }
 
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 2000; }
     .modal-content { background: white; padding: 25px; border-radius: 15px; width: 100%; max-width: 350px; }
@@ -126,7 +136,7 @@
             <tr>
               <th style="width: 80px;">ID</th> 
               <th>Full Name</th>
-              <th style="text-align: center; width: 100px;">Actions</th>
+              <th style="text-align: center; width: 120px;">Actions</th>
             </tr>
           </thead>
           <tbody id="employee-body"></tbody>
@@ -139,17 +149,16 @@
     <div class="modal-content">
       <h3 id="modalTitle">New Employee</h3>
       <input type="hidden" id="editId">
-      <input type="text" id="newName" placeholder="Enter Full Name" style="width:100%; padding:10px; margin-bottom:15px;">
+      <input type="text" id="newName" placeholder="Enter Full Name" style="width:100%; padding:10px; margin-bottom:15px; border: 1px solid #ddd; border-radius: 8px;">
       <div style="display:flex; justify-content:flex-end; gap:10px;">
-        <button onclick="closeModal()" style="padding:10px; cursor:pointer;">Cancel</button>
-        <button onclick="saveEmployee()" style="padding:10px; background:var(--primary); color:white; border:none; border-radius:5px; cursor:pointer;">Save</button>
+        <button onclick="closeModal()" style="padding:10px 15px; cursor:pointer; border:none; border-radius:6px; background:#eee;">Cancel</button>
+        <button onclick="saveEmployee()" style="padding:10px 15px; background:var(--primary); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Save</button>
       </div>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
   <script>
-    // UPDATED CREDENTIALS
     const SUPABASE_URL = 'https://xudyewfvojyplmhuvcua.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_NqLlWMfWBBXx2D_hwuJ2tw_eKhsh0sq';
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -168,7 +177,6 @@
     function closeModal() { modalOverlay.style.display = 'none'; }
 
     async function fetchEmployees() {
-      // Sorting by ID ensures the table stays in numerical order matching Supabase
       const { data, error } = await supabase.from('employees').select('id, full_name').order('id', { ascending: true });
       if (error) return;
       allEmployees = data;
@@ -187,9 +195,15 @@
           <tr>
             <td><span style="color:#94a3b8; font-weight:bold;">#${emp.id}</span></td>
             <td style="font-weight:500;">${emp.full_name}</td>
-            <td style="text-align:center;">
-              <button class="btn-edit" onclick="openModal('${emp.id}', '${emp.full_name}')"><i class="fas fa-pen"></i></button>
-              <button class="btn-delete" onclick="deleteEmployee('${emp.id}', '${emp.full_name}')"><i class="fas fa-trash"></i></button>
+            <td>
+              <div class="action-group">
+                <button class="btn-edit" title="Edit" onclick="openModal('${emp.id}', '${emp.full_name}')">
+                  <i class="fas fa-pen"></i>
+                </button>
+                <button class="btn-delete" title="Delete" onclick="deleteEmployee('${emp.id}', '${emp.full_name}')">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
             </td>
           </tr>`;
       });
