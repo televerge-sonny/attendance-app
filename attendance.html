@@ -165,6 +165,7 @@
       <a href="attendance.html" class="nav-item active">LOGS</a>
       <a href="employees.html" class="nav-item">STAFF</a>
       <a href="projectsites.html" class="nav-item">SITES</a>
+      <a href="accounting.html" class="nav-item">PAYROLL</a>
     </div>
   </nav>
 
@@ -282,19 +283,16 @@
         );
       });
       
-      currentPage = 1; // Reset to page 1 on search
+      currentPage = 1; 
       renderTable();
     }
 
     function renderTable() {
       const logsBody = document.getElementById('logs-body');
-      
-      // Pagination Logic
       const totalPages = Math.ceil(filteredData.length / rowsPerPage) || 1;
       const startIndex = (currentPage - 1) * rowsPerPage;
       const paginatedItems = filteredData.slice(startIndex, startIndex + rowsPerPage);
 
-      // Update UI
       document.getElementById('pageNumberDisplay').innerText = `Page ${currentPage} of ${totalPages}`;
       document.getElementById('prevBtn').disabled = (currentPage === 1);
       document.getElementById('nextBtn').disabled = (currentPage === totalPages);
@@ -331,12 +329,10 @@
 
     function downloadCSV() {
       if (filteredData.length === 0) return alert("No data to export.");
-
       let csvContent = "data:text/csv;charset=utf-8,ID,Name,Date,Login,Logout,Site\n";
       filteredData.forEach(log => {
         csvContent += `${log.employee_id},"${log.full_name}",${log.date},${log.login_time || ''},${log.logout_time || ''},"${log.project_site || ''}"\n`;
       });
-
       const link = document.createElement("a");
       link.setAttribute("href", encodeURI(csvContent));
       link.setAttribute("download", `Attendance_Export.csv`);

@@ -54,7 +54,6 @@
     .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 10px; }
     .page-title { margin: 0; font-size: 20px; color: var(--secondary); }
 
-    /* Search Bar Styling */
     .search-container { margin-bottom: 20px; position: relative; }
     .search-container i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #a0aec0; }
     .search-bar { 
@@ -120,6 +119,7 @@
       <a href="attendance.html" class="nav-item">LOGS</a>
       <a href="employees.html" class="nav-item">STAFF</a>
       <a href="projectsites.html" class="nav-item active">SITES</a>
+      <a href="accounting.html" class="nav-item">PAYROLL</a>
     </div>
   </nav>
 
@@ -172,7 +172,6 @@
     const siteBody = document.getElementById('site-body');
     const modalOverlay = document.getElementById('modalOverlay');
     
-    // Master list for instant searching
     let allSites = [];
 
     function openModal(id = null, name = '') {
