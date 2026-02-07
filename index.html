@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance App | Kiosk</title>
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/1063/1063376.png">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1063/1063376.png">
+  <style>
+    body { margin: 0; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: #f0f2f5; font-family: 'Segoe UI', Arial, sans-serif; }
+    
+    /* Status Indicator Style */
+    .connection-status {
+      margin-bottom: 10px;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .status-connected { color: #2ecc71; }
+    .status-connected .status-dot { background-color: #2ecc71; box-shadow: 0 0 5px #2ecc71; }
+    .status-disconnected { color: #e74c3c; }
+    .status-disconnected .status-dot { background-color: #e74c3c; }
+
+    .attendance-box { background-color: #ffffff; padding: 40px 20px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 400px; }
+    
+    h3 { color: #2c3e50; margin-bottom: 8px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+
+    select {
+      width: 90%;
+      padding: 12px;
+      margin-bottom: 25px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      background-color: #fff;
+      cursor: pointer;
+      outline: none;
+    }
+
+    input[type="tel"] { 
+      width: 85%; 
+      padding: 15px; 
+      margin-bottom: 25px; 
+      border: 2px solid #ddd; 
+      border-radius: 8px; 
+      font-size: 28px; 
+      text-align: center; 
+      letter-spacing: 5px; 
+      outline: none;
+    }
+    input[type="tel"]:focus, select:focus { border-color: #3498db; }
+
+    .btn-container { display: flex; justify-content: center; gap: 10px; }
+    .btn { flex: 1; padding: 16px; border: none; border-radius: 8px; color: white; font-size: 16px; cursor: pointer; font-weight: bold; transition: opacity 0.2s; }
+    .login-btn { background-color: #2ecc71; }
+    .logout-btn { background-color: #e74c3c; }
+    .btn:hover { opacity: 0.9; }
+
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px); }
+    .modal-content { background: white; padding: 40px; border-radius: 15px; text-align: center; max-width: 320px; width: 85%; }
+    .close-modal-btn { margin-top: 20px; padding: 12px 30px; background: #3498db; border: none; color: white; border-radius: 5px; cursor: pointer; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <div id="dbStatus" class="connection-status status-disconnected">
+    <span class="status-dot"></span>
+    <span id="statusText">Disconnected</span>
+  </div>
+
+  <div class="attendance-box">
+    <h3>Project Site</h3>
+    <select id="projectSite">
+      <option value="">Connecting to database...</option>
+    </select>
+
+    <h3>Input ID Number</h3>
+    <input 
+      type="tel" 
+      id="employeeId" 
+      placeholder="0000" 
+      inputmode="numeric" 
+      maxlength="10"
+      oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+    >
+    
+    <div class="btn-container">
+      <button id="loginBtn" class="btn login-btn">Login</button>
+      <button id="logoutBtn" class="btn logout-btn">Logout</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="statusModal">
+    <div class="modal-content">
+      <h2 id="modalHeader" style="margin-top: 0;"></h2>
+      <p id="modalMessage" style="font-size: 18px; line-height: 1.5; color: #444;"></p>
+      <button class="close-modal-btn" onclick="closeStatusModal()">OK</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
+  <script>
+    const SUPABASE_URL = 'https://ugcumdfeioxrtijekvcl.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_Z_sTQbKf7EeHB5YHGNH8Fg_y_AQmdti';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const input = document.getElementById('employeeId');
+    const siteSelect = document.getElementById('projectSite');
+    const modal = document.getElementById('statusModal');
+    const dbStatus = document.getElementById('dbStatus');
+    const statusText = document.getElementById('statusText');
+
+    function updateStatus(isConnected) {
+        if (isConnected) {
+            dbStatus.className = 'connection-status status-connected';
+            statusText.innerText = 'Connected';
+        } else {
+            dbStatus.className = 'connection-status status-disconnected';
+            statusText.innerText = 'Disconnected';
+        }
+    }
+
+    async function loadSites() {
+      const { data, error } = await supabase
+        .from('project_sites')
+        .select('site_name')
+        .order('site_name', { ascending: true });
+
+      if (error) {
+        siteSelect.innerHTML = '<option value="">Error loading sites</option>';
+        updateStatus(false);
+        return;
+      }
+
+      updateStatus(true);
+      siteSelect.innerHTML = '<option value="">-- Select Location --</option>';
+      data.forEach(site => {
+        const option = document.createElement('option');
+        option.value = site.site_name;
+        option.textContent = site.site_name;
+        siteSelect.appendChild(option);
+      });
+    }
+
+    function showStatusModal(header, message, color) {
+      const headerEl = document.getElementById('modalHeader');
+      headerEl.innerText = header;
+      headerEl.style.color = color;
+      document.getElementById('modalMessage').innerHTML = message;
+      modal.style.display = 'flex';
+      input.value = ''; 
+    }
+
+    function closeStatusModal() { modal.style.display = 'none'; }
+
+    async function handleAttendance(type) {
+      const id = input.value.trim();
+      const site = siteSelect.value;
+
+      if (!id) return alert("Please enter your Employee ID.");
+      if (type === 'login' && !site) return alert("Please select a Project Site to Login.");
+
+      // Verify Employee
+      const { data: employee, error: empError } = await supabase
+        .from('employees')
+        .select('full_name')
+        .eq('id', id)
+        .maybeSingle();
+
+      if (empError) {
+          updateStatus(false);
+          return alert("Connection Error. Please check internet.");
+      }
+
+      if (!employee) {
+        alert("Employee ID not found.");
+        return;
+      }
+
+      const now = new Date();
+      const currentTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+      const currentDate = now.toISOString().split('T')[0];
+
+      if (type === 'login') {
+        const { error } = await supabase.from('attendance_logs').insert([{
+          employee_id: id,
+          full_name: employee.full_name,
+          date: currentDate,
+          login_time: currentTime,
+          project_site: site
+        }]);
+
+        if (error) return alert("Error saving Login: " + error.message);
+        showStatusModal("Welcome!", `Hello, <b>${employee.full_name}</b>!<br>Checked in at ${site}<br>Time: ${currentTime}`, "#2ecc71");
+
+      } else {
+        const { data: activeLog, error: logError } = await supabase
+          .from('attendance_logs')
+          .select('id, project_site')
+          .eq('employee_id', id)
+          .eq('date', currentDate)
+          .is('logout_time', null)
+          .order('id', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (!activeLog) {
+          alert("Cannot Logout: No active Login record found for today.");
+          return;
+        }
+
+        const { error: updateError } = await supabase
+          .from('attendance_logs')
+          .update({ logout_time: currentTime })
+          .eq('id', activeLog.id);
+
+        if (updateError) return alert("Error saving Logout.");
+        showStatusModal("Goodbye!", `Great job, <b>${employee.full_name}</b>!<br>Logged out from <b>${activeLog.project_site}</b><br>Time: ${currentTime}`, "#e74c3c");
+      }
+    }
+
+    document.getElementById('loginBtn').addEventListener('click', () => handleAttendance('login'));
+    document.getElementById('logoutBtn').addEventListener('click', () => handleAttendance('logout'));
+
+    loadSites();
+  </script>
+</body>
+</html>

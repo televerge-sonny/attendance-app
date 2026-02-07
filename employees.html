@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employee Management | Admin</title>
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/1063/1063376.png">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1063/1063376.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #3498db;
+      --secondary: #2c3e50;
+      --success: #2ecc71;
+      --danger: #e74c3c;
+      --bg: #f8f9fa;
+      --text: #2f3542;
+      --white: #ffffff;
+      --nav-height: 60px;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); font-family: 'Segoe UI', sans-serif; color: var(--text); overflow-x: hidden; }
+    
+    .navbar {
+      background: var(--secondary);
+      min-height: var(--nav-height);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .nav-brand { color: var(--white); font-size: 16px; font-weight: bold; letter-spacing: 1px; }
+    .nav-links { display: flex; gap: 5px; }
+
+    .nav-item {
+      text-decoration: none;
+      color: #a4b0be;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 4px;
+      transition: 0.3s;
+    }
+    .nav-item.active { color: var(--white); background: rgba(255,255,255,0.1); border-bottom: 2px solid var(--primary); }
+
+    .main-container { max-width: 800px; margin: 20px auto; padding: 0 15px; }
+    .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 10px; }
+    .page-title { margin: 0; font-size: 20px; color: var(--secondary); }
+
+    /* Search Bar Styling */
+    .search-container { margin-bottom: 20px; position: relative; }
+    .search-container i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #a0aec0; }
+    .search-bar { 
+      width: 100%; 
+      padding: 12px 15px 12px 40px; 
+      border-radius: 10px; 
+      border: 1px solid #e2e8f0; 
+      outline: none; 
+      font-size: 14px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    }
+    .search-bar:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1); }
+
+    .btn-register { 
+      background: var(--success); 
+      padding: 10px 16px; 
+      border-radius: 8px; 
+      color: white; 
+      border: none; 
+      cursor: pointer; 
+      font-weight: bold; 
+      font-size: 13px;
+      display: flex; 
+      align-items: center; 
+      gap: 8px;
+    }
+
+    .btn-edit, .btn-delete { 
+      border: none; border-radius: 8px; cursor: pointer; font-size: 14px; 
+      width: 34px; height: 34px; display: inline-flex; align-items: center; 
+      justify-content: center; transition: all 0.2s; 
+    }
+    .btn-edit { background: #e1f5fe; color: #03a9f4; }
+    .btn-delete { background: #ffebee; color: #f44336; }
+    .btn-edit:hover { background: #03a9f4; color: white; }
+    .btn-delete:hover { background: #f44336; color: white; }
+
+    .table-card { background: var(--white); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    table { width: 100%; border-collapse: collapse; min-width: 400px; }
+    th { background: #f8fafc; color: #64748b; font-weight: 600; font-size: 11px; text-transform: uppercase; padding: 15px; text-align: left; }
+    td { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+
+    .action-group { display: flex; justify-content: center; gap: 8px; }
+
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 2000; backdrop-filter: blur(4px); padding: 20px; }
+    .modal-content { background: white; padding: 25px; border-radius: 15px; width: 100%; max-width: 350px; }
+    .modal-content h3 { margin-top: 0; font-size: 18px; color: var(--secondary); }
+    .modal-content input { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+
+    @media (max-width: 600px) {
+      .navbar { justify-content: center; }
+      .nav-brand { width: 100%; text-align: center; margin-bottom: 8px; }
+      .header-flex { flex-direction: column; align-items: stretch; text-align: center; }
+      .btn-register { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-brand"><i class="fas fa-shield-halved"></i> ADMIN PORTAL</div>
+    <div class="nav-links">
+      <a href="attendance.html" class="nav-item">LOGS</a>
+      <a href="employees.html" class="nav-item active">STAFF</a>
+      <a href="projectsites.html" class="nav-item">SITES</a>
+    </div>
+  </nav>
+
+  <div class="main-container">
+    <div class="header-flex">
+      <h1 class="page-title">Employee Registry</h1>
+      <button class="btn-register" onclick="openModal()">
+        <i class="fas fa-plus"></i> Register New
+      </button>
+    </div>
+
+    <div class="search-container">
+      <i class="fas fa-search"></i>
+      <input type="text" id="employeeSearch" class="search-bar" placeholder="Search by name or ID..." onkeyup="filterEmployees()">
+    </div>
+
+    <div class="table-card">
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 80px;">ID</th> 
+              <th>Full Name</th>
+              <th style="text-align: center; width: 100px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="employee-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-content">
+      <h3 id="modalTitle">New Employee</h3>
+      <input type="hidden" id="editId">
+      <input type="text" id="newName" placeholder="Enter Full Name">
+      <div class="modal-actions">
+        <button style="background:#eee; border:none; color:#666; padding:10px 15px; border-radius:6px; cursor:pointer; font-weight:600;" onclick="closeModal()">Cancel</button>
+        <button style="background:var(--primary); border:none; color:white; padding:10px 15px; border-radius:6px; cursor:pointer; font-weight:600;" onclick="saveEmployee()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
+  <script>
+    const SUPABASE_URL = 'https://ugcumdfeioxrtijekvcl.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_Z_sTQbKf7EeHB5YHGNH8Fg_y_AQmdti';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const employeeBody = document.getElementById('employee-body');
+    const modalOverlay = document.getElementById('modalOverlay');
+    
+    // MASTER LIST: Holds all data from database
+    let allEmployees = [];
+
+    function openModal(id = null, name = '') {
+      document.getElementById('editId').value = id;
+      document.getElementById('newName').value = name;
+      document.getElementById('modalTitle').innerText = id ? "Update Employee" : "Register Employee";
+      modalOverlay.style.display = 'flex';
+    }
+
+    function closeModal() { modalOverlay.style.display = 'none'; }
+
+    async function fetchEmployees() {
+      const { data, error } = await supabase.from('employees').select('id, full_name').order('id', { ascending: true });
+      if (error) return;
+      
+      allEmployees = data; // Store in our master list
+      renderTable(allEmployees); // Show them
+    }
+
+    // FUNCTION TO SHOW DATA IN TABLE
+    function renderTable(list) {
+      employeeBody.innerHTML = '';
+      if (list.length === 0) {
+        employeeBody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:20px; color:#94a3b8;">No employees found.</td></tr>';
+        return;
+      }
+      
+      list.forEach(emp => {
+        employeeBody.innerHTML += `
+          <tr>
+            <td><span style="color:#94a3b8; font-weight:bold;">#${emp.id}</span></td>
+            <td style="font-weight:500;">${emp.full_name}</td>
+            <td>
+              <div class="action-group">
+                <button class="btn-edit" title="Edit" onclick="openModal('${emp.id}', '${emp.full_name}')"><i class="fas fa-pen"></i></button>
+                <button class="btn-delete" title="Delete" onclick="deleteEmployee('${emp.id}', '${emp.full_name}')"><i class="fas fa-trash"></i></button>
+              </div>
+            </td>
+          </tr>`;
+      });
+    }
+
+    // SEARCH LOGIC
+    function filterEmployees() {
+      const searchTerm = document.getElementById('employeeSearch').value.toLowerCase();
+      
+      const filtered = allEmployees.filter(emp => {
+        return emp.full_name.toLowerCase().includes(searchTerm) || 
+               emp.id.toString().includes(searchTerm);
+      });
+      
+      renderTable(filtered);
+    }
+
+    async function saveEmployee() {
+      const id = document.getElementById('editId').value;
+      const name = document.getElementById('newName').value.trim();
+      if (!name) return alert("Please enter a name");
+
+      if (id) {
+        await supabase.from('employees').update({ full_name: name }).eq('id', id);
+      } else {
+        await supabase.from('employees').insert([{ full_name: name }]);
+      }
+      closeModal();
+      fetchEmployees();
+    }
+
+    async function deleteEmployee(id, name) {
+      if (confirm(`Remove ${name} from system?`)) {
+        await supabase.from('employees').delete().eq('id', id);
+        fetchEmployees();
+      }
+    }
+
+    fetchEmployees();
+  </script>
+</body>
+</html>

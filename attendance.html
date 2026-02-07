@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance Logs | Admin</title>
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/1063/1063376.png">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1063/1063376.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #3498db;
+      --secondary: #2c3e50;
+      --success: #2ecc71;
+      --danger: #e74c3c;
+      --bg: #f8f9fa;
+      --text: #2f3542;
+      --white: #ffffff;
+      --nav-height: 60px;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); font-family: 'Segoe UI', sans-serif; color: var(--text); overflow-x: hidden; }
+    
+    /* Responsive Navbar */
+    .navbar {
+      background: var(--secondary);
+      min-height: var(--nav-height);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .nav-brand { color: var(--white); font-size: 16px; font-weight: bold; letter-spacing: 1px; }
+    .nav-links { display: flex; gap: 5px; }
+
+    .nav-item {
+      text-decoration: none;
+      color: #a4b0be;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 4px;
+      transition: 0.3s;
+    }
+
+    .nav-item.active { color: var(--white); background: rgba(255,255,255,0.1); border-bottom: 2px solid var(--primary); }
+
+    /* Layout Containers */
+    .main-container { max-width: 1100px; margin: 20px auto; padding: 0 15px; }
+    .page-title { margin: 0 0 15px 0; font-size: 20px; color: var(--secondary); }
+
+    /* Filter Card */
+    .filter-card { 
+      background: var(--white); 
+      padding: 15px; 
+      border-radius: 12px; 
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      border: 1px solid #edf2f7;
+      margin-bottom: 20px;
+    }
+
+    @media (min-width: 768px) {
+      .filter-card { grid-template-columns: 2fr 1fr 1fr auto; align-items: end; }
+    }
+    
+    .filter-group { display: flex; flex-direction: column; gap: 5px; }
+    .filter-group label { font-weight: 700; color: #718096; font-size: 11px; text-transform: uppercase; }
+    
+    .search-input-wrapper { position: relative; }
+    .search-input-wrapper i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #a0aec0; }
+    
+    input { 
+        padding: 10px 12px; 
+        border: 1px solid #e2e8f0; 
+        border-radius: 8px; 
+        width: 100%;
+        font-size: 14px;
+    }
+    .search-input { padding-left: 35px !important; }
+    
+    .button-group { display: flex; gap: 8px; margin-top: 5px; }
+    .btn-action { 
+        flex: 1;
+        padding: 12px; 
+        border: none; 
+        border-radius: 8px; 
+        cursor: pointer; 
+        font-weight: 600; 
+        font-size: 13px; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center;
+        gap: 8px;
+    }
+    .btn-reset { background: #edf2f7; color: #4a5568; }
+    .btn-download { background: var(--primary); color: white; }
+    .btn-delete-filtered { background: #fff5f5; color: var(--danger); border: 1px solid #fed7d7; }
+
+    /* Table & Pagination */
+    .table-card { 
+        background: var(--white); 
+        border-radius: 12px; 
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+    .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    table { width: 100%; border-collapse: collapse; min-width: 600px; }
+    th { background: #f8fafc; color: #64748b; font-size: 11px; text-transform: uppercase; padding: 12px 15px; text-align: left; }
+    td { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+    
+    .site-tag { 
+        background: #ebf8ff; padding: 3px 8px; border-radius: 12px; 
+        font-size: 10px; font-weight: 700; color: #2b6cb0; border: 1px solid #bee3f8;
+    }
+
+    /* Pagination Styles */
+    .pagination-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        background: #fff;
+        border-top: 1px solid #f1f5f9;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    .pg-controls { display: flex; align-items: center; gap: 12px; }
+    .pg-btn {
+        padding: 8px 14px;
+        border: 1px solid #e2e8f0;
+        background: white;
+        border-radius: 6px;
+        cursor: pointer;
+        color: var(--secondary);
+        font-size: 14px;
+        transition: 0.2s;
+    }
+    .pg-btn:hover:not(:disabled) { background: #f8fafc; border-color: var(--primary); color: var(--primary); }
+    .pg-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .pg-info { font-size: 13px; color: #64748b; font-weight: 500; }
+    .rows-select { padding: 5px; border-radius: 5px; border: 1px solid #e2e8f0; margin: 0 5px; cursor: pointer; }
+
+    @media (max-width: 600px) {
+      .navbar { justify-content: center; gap: 10px; }
+      .nav-brand { width: 100%; text-align: center; margin-bottom: 5px; }
+      .pagination-footer { justify-content: center; flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-brand"><i class="fas fa-shield-halved"></i> ADMIN PORTAL</div>
+    <div class="nav-links">
+      <a href="attendance.html" class="nav-item active">LOGS</a>
+      <a href="employees.html" class="nav-item">STAFF</a>
+      <a href="projectsites.html" class="nav-item">SITES</a>
+    </div>
+  </nav>
+
+  <div class="main-container">
+    <h1 class="page-title">Attendance Logs</h1>
+
+    <div class="filter-card">
+      <div class="filter-group">
+        <label>Search</label>
+        <div class="search-input-wrapper">
+          <i class="fas fa-search"></i>
+          <input type="text" id="searchInput" class="search-input" placeholder="Name, ID, Site..." onkeyup="filterTable()">
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label>From</label>
+        <input type="date" id="dateFrom" onchange="fetchLogs()">
+      </div>
+
+      <div class="filter-group">
+        <label>To</label>
+        <input type="date" id="dateTo" onchange="fetchLogs()">
+      </div>
+      
+      <div class="button-group">
+        <button class="btn-action btn-reset" onclick="resetFilters()" title="Reset">
+            <i class="fas fa-undo"></i><span>Reset</span>
+        </button>
+        <button class="btn-action btn-delete-filtered" onclick="deleteFilteredLogs()" title="Delete Range">
+            <i class="fas fa-trash-can"></i><span>Clear</span>
+        </button>
+        <button class="btn-action btn-download" onclick="downloadCSV()" title="Export CSV">
+            <i class="fas fa-file-csv"></i><span>Export</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="table-card">
+        <div class="table-responsive">
+            <table>
+                <thead>
+                  <tr>
+                    <th>Emp ID</th>
+                    <th>Full Name</th>
+                    <th>Date</th>
+                    <th>Login</th>
+                    <th>Logout</th>
+                    <th>Site</th>
+                  </tr>
+                </thead>
+                <tbody id="logs-body"></tbody>
+            </table>
+        </div>
+
+        <div class="pagination-footer">
+            <div class="pg-info">
+                Show 
+                <select id="rowsPerPage" class="rows-select" onchange="updateRowsPerPage()">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="30">30</option>
+                </select> 
+                rows
+            </div>
+            <div class="pg-controls">
+                <button class="pg-btn" id="prevBtn" onclick="changePage(-1)"><i class="fas fa-chevron-left"></i></button>
+                <span class="pg-info" id="pageNumberDisplay">Page 1 of 1</span>
+                <button class="pg-btn" id="nextBtn" onclick="changePage(1)"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
+  <script>
+    const SUPABASE_URL = 'https://ugcumdfeioxrtijekvcl.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_Z_sTQbKf7EeHB5YHGNH8Fg_y_AQmdti';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let currentData = []; 
+    let filteredData = [];
+    let currentPage = 1;
+    let rowsPerPage = 10;
+
+    async function fetchLogs() {
+      const dateFrom = document.getElementById('dateFrom').value;
+      const dateTo = document.getElementById('dateTo').value;
+      const logsBody = document.getElementById('logs-body');
+
+      logsBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px;"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>';
+
+      let query = supabase.from('attendance_logs').select('*');
+      if (dateFrom) query = query.gte('date', dateFrom);
+      if (dateTo) query = query.lte('date', dateTo);
+
+      const { data, error } = await query.order('date', { ascending: false }).order('login_time', { ascending: false });
+
+      if (error) {
+        logsBody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red; padding:30px;">Error loading data.</td></tr>';
+        return;
+      }
+
+      currentData = data || []; 
+      filterTable();
+    }
+
+    function filterTable() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      filteredData = currentData.filter(log => {
+        return (
+          log.full_name.toLowerCase().includes(searchTerm) ||
+          log.employee_id.toString().includes(searchTerm) ||
+          (log.project_site && log.project_site.toLowerCase().includes(searchTerm))
+        );
+      });
+      
+      currentPage = 1; // Reset to page 1 on search
+      renderTable();
+    }
+
+    function renderTable() {
+      const logsBody = document.getElementById('logs-body');
+      
+      // Pagination Logic
+      const totalPages = Math.ceil(filteredData.length / rowsPerPage) || 1;
+      const startIndex = (currentPage - 1) * rowsPerPage;
+      const paginatedItems = filteredData.slice(startIndex, startIndex + rowsPerPage);
+
+      // Update UI
+      document.getElementById('pageNumberDisplay').innerText = `Page ${currentPage} of ${totalPages}`;
+      document.getElementById('prevBtn').disabled = (currentPage === 1);
+      document.getElementById('nextBtn').disabled = (currentPage === totalPages);
+
+      if (paginatedItems.length === 0) {
+        logsBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px;">No records found.</td></tr>';
+        return;
+      }
+
+      logsBody.innerHTML = '';
+      paginatedItems.forEach(log => {
+        logsBody.innerHTML += `
+          <tr>
+            <td style="font-weight:700;">${log.employee_id}</td>
+            <td>${log.full_name}</td>
+            <td style="white-space:nowrap;">${new Date(log.date).toLocaleDateString()}</td>
+            <td style="color:var(--success); font-weight:bold;">${log.login_time || '--:--'}</td>
+            <td style="color:var(--danger); font-weight:bold;">${log.logout_time || '--:--'}</td>
+            <td><span class="site-tag">${log.project_site || 'N/A'}</span></td>
+          </tr>`;
+      });
+    }
+
+    function changePage(direction) {
+      currentPage += direction;
+      renderTable();
+    }
+
+    function updateRowsPerPage() {
+      rowsPerPage = parseInt(document.getElementById('rowsPerPage').value);
+      currentPage = 1;
+      renderTable();
+    }
+
+    function downloadCSV() {
+      if (filteredData.length === 0) return alert("No data to export.");
+
+      let csvContent = "data:text/csv;charset=utf-8,ID,Name,Date,Login,Logout,Site\n";
+      filteredData.forEach(log => {
+        csvContent += `${log.employee_id},"${log.full_name}",${log.date},${log.login_time || ''},${log.logout_time || ''},"${log.project_site || ''}"\n`;
+      });
+
+      const link = document.createElement("a");
+      link.setAttribute("href", encodeURI(csvContent));
+      link.setAttribute("download", `Attendance_Export.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    async function deleteFilteredLogs() {
+      const dateFrom = document.getElementById('dateFrom').value;
+      const dateTo = document.getElementById('dateTo').value;
+      if (!dateFrom && !dateTo) return alert("Select a date range first.");
+      if (confirm("Delete these records permanently?")) {
+        let query = supabase.from('attendance_logs').delete();
+        if (dateFrom) query = query.gte('date', dateFrom);
+        if (dateTo) query = query.lte('date', dateTo);
+        await query;
+        fetchLogs();
+      }
+    }
+
+    function resetFilters() {
+      document.getElementById('dateFrom').value = '';
+      document.getElementById('dateTo').value = '';
+      document.getElementById('searchInput').value = '';
+      fetchLogs();
+    }
+
+    fetchLogs();
+  </script>
+</body>
+</html>

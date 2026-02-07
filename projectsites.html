@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Sites | Admin</title>
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/1063/1063376.png">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1063/1063376.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #3498db;
+      --secondary: #2c3e50;
+      --success: #2ecc71;
+      --danger: #e74c3c;
+      --bg: #f8f9fa;
+      --text: #2f3542;
+      --white: #ffffff;
+      --nav-height: 60px;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); font-family: 'Segoe UI', sans-serif; color: var(--text); overflow-x: hidden; }
+    
+    .navbar {
+      background: var(--secondary);
+      min-height: var(--nav-height);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .nav-brand { color: var(--white); font-size: 16px; font-weight: bold; letter-spacing: 1px; }
+    .nav-links { display: flex; gap: 5px; }
+
+    .nav-item {
+      text-decoration: none;
+      color: #a4b0be;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 4px;
+      transition: 0.3s;
+    }
+    .nav-item.active { color: var(--white); background: rgba(255,255,255,0.1); border-bottom: 2px solid var(--primary); }
+
+    .main-container { max-width: 800px; margin: 20px auto; padding: 0 15px; }
+    .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 10px; }
+    .page-title { margin: 0; font-size: 20px; color: var(--secondary); }
+
+    /* Search Bar Styling */
+    .search-container { margin-bottom: 20px; position: relative; }
+    .search-container i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #a0aec0; }
+    .search-bar { 
+      width: 100%; 
+      padding: 12px 15px 12px 40px; 
+      border-radius: 10px; 
+      border: 1px solid #e2e8f0; 
+      outline: none; 
+      font-size: 14px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    }
+    .search-bar:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1); }
+
+    .btn-register { 
+      background: var(--success); 
+      padding: 10px 16px; 
+      border-radius: 8px; 
+      color: white; 
+      border: none; 
+      cursor: pointer; 
+      font-weight: bold; 
+      font-size: 13px;
+      display: flex; 
+      align-items: center; 
+      gap: 8px;
+    }
+
+    .btn-edit, .btn-delete { 
+      border: none; border-radius: 8px; cursor: pointer; font-size: 14px; 
+      width: 34px; height: 34px; display: inline-flex; align-items: center; 
+      justify-content: center; transition: all 0.2s; 
+    }
+    .btn-edit { background: #e1f5fe; color: #03a9f4; }
+    .btn-delete { background: #ffebee; color: #f44336; }
+    .btn-edit:hover { background: #03a9f4; color: white; }
+    .btn-delete:hover { background: #f44336; color: white; }
+
+    .table-card { background: var(--white); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    table { width: 100%; border-collapse: collapse; min-width: 400px; }
+    th { background: #f8fafc; color: #64748b; font-weight: 600; font-size: 11px; text-transform: uppercase; padding: 15px; text-align: left; }
+    td { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+
+    .action-group { display: flex; justify-content: center; gap: 8px; }
+
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 2000; backdrop-filter: blur(4px); padding: 20px; }
+    .modal-content { background: white; padding: 25px; border-radius: 15px; width: 100%; max-width: 350px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+
+    @media (max-width: 600px) {
+      .navbar { justify-content: center; }
+      .nav-brand { width: 100%; text-align: center; margin-bottom: 8px; }
+      .header-flex { flex-direction: column; align-items: stretch; text-align: center; }
+      .btn-register { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-brand"><i class="fas fa-shield-halved"></i> ADMIN PORTAL</div>
+    <div class="nav-links">
+      <a href="attendance.html" class="nav-item">LOGS</a>
+      <a href="employees.html" class="nav-item">STAFF</a>
+      <a href="projectsites.html" class="nav-item active">SITES</a>
+    </div>
+  </nav>
+
+  <div class="main-container">
+    <div class="header-flex">
+      <h1 class="page-title">Project Sites</h1>
+      <button class="btn-register" onclick="openModal()">
+        <i class="fas fa-plus"></i> Add New Site
+      </button>
+    </div>
+
+    <div class="search-container">
+      <i class="fas fa-search"></i>
+      <input type="text" id="siteSearch" class="search-bar" placeholder="Search for a project site..." onkeyup="filterSites()">
+    </div>
+
+    <div class="table-card">
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Site Name</th>
+              <th style="text-align: center; width: 100px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="site-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-content">
+      <h3 id="modalTitle">New Project Site</h3>
+      <input type="hidden" id="editSiteId">
+      <input type="text" id="siteNameInput" style="width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ddd; border-radius: 8px;" placeholder="Enter Site Name">
+      <div class="modal-actions">
+        <button style="background:#eee; border:none; color:#666; padding:10px 15px; border-radius:6px; cursor:pointer; font-weight:600;" onclick="closeModal()">Cancel</button>
+        <button style="background:var(--primary); border:none; color:white; padding:10px 15px; border-radius:6px; cursor:pointer; font-weight:600;" onclick="saveSite()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
+  <script>
+    const SUPABASE_URL = 'https://ugcumdfeioxrtijekvcl.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_Z_sTQbKf7EeHB5YHGNH8Fg_y_AQmdti';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const siteBody = document.getElementById('site-body');
+    const modalOverlay = document.getElementById('modalOverlay');
+    
+    // Master list for instant searching
+    let allSites = [];
+
+    function openModal(id = null, name = '') {
+      document.getElementById('editSiteId').value = id;
+      document.getElementById('siteNameInput').value = name;
+      document.getElementById('modalTitle').innerText = id ? "Edit Site" : "New Project Site";
+      modalOverlay.style.display = 'flex';
+    }
+
+    function closeModal() { modalOverlay.style.display = 'none'; }
+
+    async function fetchSites() {
+      const { data, error } = await supabase.from('project_sites').select('*').order('site_name', { ascending: true });
+      if (error) return;
+      allSites = data;
+      renderTable(allSites);
+    }
+
+    function renderTable(list) {
+      siteBody.innerHTML = '';
+      if (list.length === 0) {
+        siteBody.innerHTML = '<tr><td colspan="2" style="text-align:center; padding:20px; color:#94a3b8;">No sites found.</td></tr>';
+        return;
+      }
+
+      list.forEach(site => {
+        siteBody.innerHTML += `
+          <tr>
+            <td><i class="fas fa-location-dot" style="color: #cbd5e1; margin-right: 10px;"></i> <strong>${site.site_name}</strong></td>
+            <td>
+              <div class="action-group">
+                <button class="btn-edit" title="Edit" onclick="openModal('${site.id}', '${site.site_name}')"><i class="fas fa-pen"></i></button>
+                <button class="btn-delete" title="Delete" onclick="deleteSite('${site.id}', '${site.site_name}')"><i class="fas fa-trash"></i></button>
+              </div>
+            </td>
+          </tr>`;
+      });
+    }
+
+    function filterSites() {
+      const searchTerm = document.getElementById('siteSearch').value.toLowerCase();
+      const filtered = allSites.filter(site => site.site_name.toLowerCase().includes(searchTerm));
+      renderTable(filtered);
+    }
+
+    async function saveSite() {
+      const id = document.getElementById('editSiteId').value;
+      const name = document.getElementById('siteNameInput').value.trim();
+      if (!name) return alert("Enter site name");
+
+      if (id) {
+        await supabase.from('project_sites').update({ site_name: name }).eq('id', id);
+      } else {
+        await supabase.from('project_sites').insert([{ site_name: name }]);
+      }
+      closeModal();
+      fetchSites();
+    }
+
+    async function deleteSite(id, name) {
+      if (confirm(`Delete ${name}?`)) {
+        await supabase.from('project_sites').delete().eq('id', id);
+        fetchSites();
+      }
+    }
+
+    fetchSites();
+  </script>
+</body>
+</html>
