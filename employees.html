@@ -22,6 +22,7 @@
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--bg); font-family: 'Segoe UI', sans-serif; color: var(--text); overflow-x: hidden; }
     
+    /* Responsive Navbar */
     .navbar {
       background: var(--secondary);
       min-height: var(--nav-height);
@@ -50,49 +51,69 @@
     }
     .nav-item.active { color: var(--white); background: rgba(255,255,255,0.1); border-bottom: 2px solid var(--primary); }
 
-    .main-container { max-width: 800px; margin: 20px auto; padding: 0 15px; }
-    .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 10px; }
-    .page-title { margin: 0; font-size: 20px; color: var(--secondary); }
+    /* Layout Containers */
+    .main-container { max-width: 900px; margin: 20px auto; padding: 0 15px; }
+    .page-title { margin: 0 0 15px 0; font-size: 20px; color: var(--secondary); }
 
-    .search-container { margin-bottom: 20px; position: relative; }
-    .search-container i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #a0aec0; }
-    .search-bar { 
-      width: 100%; 
-      padding: 12px 15px 12px 40px; 
-      border-radius: 10px; 
-      border: 1px solid #e2e8f0; 
-      outline: none; 
-      font-size: 14px;
+    /* Filter Card (From Attendance Setup) */
+    .filter-card { 
+      background: var(--white); 
+      padding: 15px; 
+      border-radius: 12px; 
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      border: 1px solid #edf2f7;
+      margin-bottom: 20px;
     }
 
+    @media (min-width: 768px) {
+      .filter-card { grid-template-columns: 1fr auto; align-items: end; }
+    }
+    
+    .filter-group { display: flex; flex-direction: column; gap: 5px; }
+    .filter-group label { font-weight: 700; color: #718096; font-size: 11px; text-transform: uppercase; }
+    
+    .search-input-wrapper { position: relative; }
+    .search-input-wrapper i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #a0aec0; }
+    
+    input { 
+      padding: 10px 12px; 
+      border: 1px solid #e2e8f0; 
+      border-radius: 8px; 
+      width: 100%;
+      font-size: 14px;
+      outline: none;
+    }
+    .search-input { padding-left: 35px !important; }
+    
     .btn-register { 
       background: var(--success); 
-      padding: 10px 16px; 
+      padding: 11px 20px; 
       border-radius: 8px; 
       color: white; 
       border: none; 
       cursor: pointer; 
       font-weight: bold; 
+      font-size: 13px;
       display: flex; 
       align-items: center; 
+      justify-content: center;
       gap: 8px;
     }
 
-    .table-card { background: var(--white); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-    .table-responsive { overflow-x: auto; }
+    /* Table Styling */
+    .table-card { background: var(--white); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden; }
+    .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     table { width: 100%; border-collapse: collapse; }
-    th { background: #f8fafc; color: #64748b; font-size: 11px; text-transform: uppercase; padding: 15px; text-align: left; }
+    th { background: #f8fafc; color: #64748b; font-size: 10px; text-transform: uppercase; padding: 12px 15px; text-align: left; }
     td { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
 
-    .action-group {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-    }
-
+    .action-group { display: flex; gap: 8px; }
     .btn-edit, .btn-delete { 
-      border: none; border-radius: 8px; cursor: pointer; 
-      width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; 
+      border: none; border-radius: 6px; cursor: pointer; 
+      width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; 
       transition: 0.2s;
     }
     .btn-edit { background: #e1f5fe; color: #03a9f4; }
@@ -100,8 +121,38 @@
     .btn-edit:hover { background: #03a9f4; color: white; }
     .btn-delete:hover { background: #f44336; color: white; }
 
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 2000; }
-    .modal-content { background: white; padding: 25px; border-radius: 15px; width: 100%; max-width: 350px; }
+    /* Pagination Footer (From Attendance Setup) */
+    .pagination-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      background: #fff;
+      border-top: 1px solid #f1f5f9;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    .pg-controls { display: flex; align-items: center; gap: 12px; }
+    .pg-btn {
+      padding: 8px 14px;
+      border: 1px solid #e2e8f0;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--secondary);
+    }
+    .pg-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .pg-info { font-size: 13px; color: #64748b; font-weight: 500; }
+
+    /* Modal Styling */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 2000; padding: 20px; }
+    .modal-content { background: white; padding: 25px; border-radius: 15px; width: 100%; max-width: 350px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+
+    @media (max-width: 600px) {
+      .navbar { justify-content: center; gap: 10px; }
+      .nav-brand { width: 100%; text-align: center; margin-bottom: 5px; }
+      .pagination-footer { justify-content: center; flex-direction: column; text-align: center; }
+    }
   </style>
 </head>
 <body>
@@ -117,16 +168,19 @@
   </nav>
 
   <div class="main-container">
-    <div class="header-flex">
-      <h1 class="page-title">Employee Registry</h1>
+    <h1 class="page-title">Employee Registry</h1>
+
+    <div class="filter-card">
+      <div class="filter-group">
+        <label>Search Staff</label>
+        <div class="search-input-wrapper">
+          <i class="fas fa-search"></i>
+          <input type="text" id="employeeSearch" class="search-input" placeholder="Search by name or ID..." onkeyup="filterEmployees()">
+        </div>
+      </div>
       <button class="btn-register" onclick="openModal()">
         <i class="fas fa-plus"></i> Register New
       </button>
-    </div>
-
-    <div class="search-container">
-      <i class="fas fa-search"></i>
-      <input type="text" id="employeeSearch" class="search-bar" placeholder="Search by name or ID..." onkeyup="filterEmployees()">
     </div>
 
     <div class="table-card">
@@ -136,20 +190,37 @@
             <tr>
               <th style="width: 80px;">ID</th> 
               <th>Full Name</th>
-              <th style="text-align: center; width: 120px;">Actions</th>
+              <th style="width: 100px;">Actions</th>
             </tr>
           </thead>
           <tbody id="employee-body"></tbody>
         </table>
+      </div>
+
+      <div class="pagination-footer">
+          <div class="pg-info">
+              Show 
+              <select id="rowsPerPage" style="padding:5px; border-radius:5px; border:1px solid #e2e8f0;" onchange="updateRowsPerPage()">
+                  <option value="10">10</option>
+                  <option value="20">20</option>
+                  <option value="50">50</option>
+              </select> 
+              rows
+          </div>
+          <div class="pg-controls">
+              <button class="pg-btn" id="prevBtn" onclick="changePage(-1)"><i class="fas fa-chevron-left"></i></button>
+              <span class="pg-info" id="pageNumberDisplay">Page 1 of 1</span>
+              <button class="pg-btn" id="nextBtn" onclick="changePage(1)"><i class="fas fa-chevron-right"></i></button>
+          </div>
       </div>
     </div>
   </div>
 
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal-content">
-      <h3 id="modalTitle">New Employee</h3>
+      <h3 id="modalTitle" style="margin-top:0;">New Employee</h3>
       <input type="hidden" id="editId">
-      <input type="text" id="newName" placeholder="Enter Full Name" style="width:100%; padding:10px; margin-bottom:15px; border: 1px solid #ddd; border-radius: 8px;">
+      <input type="text" id="newName" placeholder="Enter Full Name" style="margin-bottom:15px;">
       <div style="display:flex; justify-content:flex-end; gap:10px;">
         <button onclick="closeModal()" style="padding:10px 15px; cursor:pointer; border:none; border-radius:6px; background:#eee;">Cancel</button>
         <button onclick="saveEmployee()" style="padding:10px 15px; background:var(--primary); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Save</button>
@@ -163,9 +234,13 @@
     const SUPABASE_KEY = 'sb_publishable_NqLlWMfWBBXx2D_hwuJ2tw_eKhsh0sq';
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    let allEmployees = [];
+    let filteredEmployees = [];
+    let currentPage = 1;
+    let rowsPerPage = 10;
+
     const employeeBody = document.getElementById('employee-body');
     const modalOverlay = document.getElementById('modalOverlay');
-    let allEmployees = [];
 
     function openModal(id = null, name = '') {
       document.getElementById('editId').value = id || '';
@@ -180,21 +255,38 @@
       const { data, error } = await supabase.from('employees').select('id, full_name').order('id', { ascending: true });
       if (error) return;
       allEmployees = data;
-      renderTable(allEmployees);
+      filterEmployees();
     }
 
-    function renderTable(list) {
+    function filterEmployees() {
+      const searchTerm = document.getElementById('employeeSearch').value.toLowerCase();
+      filteredEmployees = allEmployees.filter(emp => 
+        emp.full_name.toLowerCase().includes(searchTerm) || emp.id.toString().includes(searchTerm)
+      );
+      currentPage = 1;
+      renderTable();
+    }
+
+    function renderTable() {
+      const totalPages = Math.ceil(filteredEmployees.length / rowsPerPage) || 1;
+      const startIndex = (currentPage - 1) * rowsPerPage;
+      const paginatedItems = filteredEmployees.slice(startIndex, startIndex + rowsPerPage);
+
+      document.getElementById('pageNumberDisplay').innerText = `Page ${currentPage} of ${totalPages}`;
+      document.getElementById('prevBtn').disabled = (currentPage === 1);
+      document.getElementById('nextBtn').disabled = (currentPage === totalPages);
+
       employeeBody.innerHTML = '';
-      if (list.length === 0) {
-        employeeBody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:20px; color:#94a3b8;">No employees found.</td></tr>';
+      if (paginatedItems.length === 0) {
+        employeeBody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:20px; color:#94a3b8;">No records found.</td></tr>';
         return;
       }
       
-      list.forEach(emp => {
+      paginatedItems.forEach(emp => {
         employeeBody.innerHTML += `
           <tr>
             <td><span style="color:#94a3b8; font-weight:bold;">#${emp.id}</span></td>
-            <td style="font-weight:500;">${emp.full_name}</td>
+            <td style="font-weight:600;">${emp.full_name}</td>
             <td>
               <div class="action-group">
                 <button class="btn-edit" title="Edit" onclick="openModal('${emp.id}', '${emp.full_name}')">
@@ -209,12 +301,11 @@
       });
     }
 
-    function filterEmployees() {
-      const searchTerm = document.getElementById('employeeSearch').value.toLowerCase();
-      const filtered = allEmployees.filter(emp => 
-        emp.full_name.toLowerCase().includes(searchTerm) || emp.id.toString().includes(searchTerm)
-      );
-      renderTable(filtered);
+    function changePage(direction) { currentPage += direction; renderTable(); }
+    function updateRowsPerPage() { 
+      rowsPerPage = parseInt(document.getElementById('rowsPerPage').value); 
+      currentPage = 1; 
+      renderTable(); 
     }
 
     async function saveEmployee() {
@@ -232,7 +323,7 @@
     }
 
     async function deleteEmployee(id, name) {
-      if (confirm(`Remove ${name} (ID: #${id}) from system?`)) {
+      if (confirm(`Remove ${name} (ID: #${id})?`)) {
         await supabase.from('employees').delete().eq('id', id);
         fetchEmployees();
       }
