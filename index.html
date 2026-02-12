@@ -60,18 +60,12 @@
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px); }
     .modal-content { background: white; padding: 25px 15px; border-radius: 15px; text-align: center; max-width: 500px; width: 95%; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
     
-    /* The Single Row Container */
-    .request-row { 
-        display: flex; 
-        gap: 8px; 
-        margin-bottom: 15px; 
-        align-items: center; 
-    }
-    .req-item { flex: 2; min-width: 0; } /* Takes most space */
-    .req-qty { flex: 0.6; min-width: 0; text-align: center; } /* Smallest */
-    .req-unit { flex: 1; min-width: 0; } /* Middle */
+    .request-row { display: flex; gap: 8px; margin-bottom: 15px; align-items: center; }
+    .req-item { flex: 2; min-width: 0; }
+    .req-qty { flex: 0.6; min-width: 0; text-align: center; }
+    .req-unit { flex: 1; min-width: 0; }
 
-    .request-row input, .request-row select { margin-bottom: 0; } /* Remove bottom margin for row layout */
+    .request-row input, .request-row select { margin-bottom: 0; }
 
     .close-modal-btn { margin-top: 20px; padding: 12px 30px; background: #3498db; border: none; color: white; border-radius: 5px; cursor: pointer; font-weight: bold; }
     .submit-req-btn { padding: 12px 30px; background: #2ecc71; border: none; color: white; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; }
@@ -99,7 +93,7 @@
     </div>
   </div>
 
-  <button class="request-btn" onclick="openRequestModal()">Request</button>
+  <button class="request-btn" onclick="openRequestModal()">Request Materials</button>
 
   <div class="modal-overlay" id="statusModal">
     <div class="modal-content">
@@ -124,11 +118,11 @@
           <option value="liter">liter</option>
           <option value="meter">meter</option>
           <option value="inch">inch</option>
-          <option value="inch">roll</option>
+          <option value="roll">roll</option>
         </select>
       </div>
 
-      <button class="submit-req-btn" onclick="submitRequest()">Submit Request</button>
+      <button id="submitReqBtn" class="submit-req-btn" onclick="submitRequest()">Submit Request</button>
       <button onclick="closeRequestModal()" style="background:none; border:none; color:#7f8c8d; cursor:pointer; margin-top:15px; text-decoration:underline;">Cancel</button>
     </div>
   </div>
@@ -149,35 +143,49 @@
     function openRequestModal() { reqModal.style.display = 'flex'; }
     function closeRequestModal() { reqModal.style.display = 'none'; }
     
-    function submitRequest() {
+    async function submitRequest() {
         const item = document.getElementById('reqItem').value.trim();
         const qty = document.getElementById('reqQty').value.trim();
         const unit = document.getElementById('reqUnit').value;
+        const site = siteSelect.value;
+        const btn = document.getElementById('submitReqBtn');
         
-        if(!item || !qty) return alert("Fill in Item and Qty.");
-        
-        closeRequestModal();
-        
-        showStatusModal(
-            "Request Noted", 
-            `<i class="fas fa-person-digging" style="font-size: 30px; color: #3498db; margin-bottom: 10px; display: block;"></i>
-             Request: <b>${qty} ${unit}</b> of <b>${item}</b><br><small>Status: Under Construction</small>`, 
-            "#3498db"
-        );
-        
-        document.getElementById('reqItem').value = '';
-        document.getElementById('reqQty').value = '';
+        if(!site) return alert("Please select a Project Site first.");
+        if(!item || !qty) return alert("Please fill in both Item and Quantity.");
+
+        btn.disabled = true;
+        btn.innerText = "Sending...";
+
+        const { error } = await supabase.from('material_requests').insert([{
+            site_name: site,
+            item_name: item,
+            quantity: qty,
+            unit: unit,
+            status: 'Pending'
+        }]);
+
+        btn.disabled = false;
+        btn.innerText = "Submit Request";
+
+        if(error) {
+            alert("Error: " + error.message);
+        } else {
+            closeRequestModal();
+            showStatusModal(
+                "Request Sent", 
+                `<i class="fas fa-check-circle" style="font-size: 40px; color: #2ecc71; margin-bottom: 10px; display: block;"></i>
+                 Your request for <b>${qty} ${unit}</b> of <b>${item}</b> has been sent to the Admin for approval.`, 
+                "#2ecc71"
+            );
+            // Reset fields
+            document.getElementById('reqItem').value = '';
+            document.getElementById('reqQty').value = '';
+        }
     }
 
-    // (Remaining Supabase & Attendance logic stays the same)
     function updateStatus(isConnected) {
-        if (isConnected) {
-            dbStatus.className = 'connection-status status-connected';
-            statusText.innerText = 'Connected';
-        } else {
-            dbStatus.className = 'connection-status status-disconnected';
-            statusText.innerText = 'Disconnected';
-        }
+        dbStatus.className = isConnected ? 'connection-status status-connected' : 'connection-status status-disconnected';
+        statusText.innerText = isConnected ? 'Connected' : 'Disconnected';
     }
 
     async function loadSites() {
