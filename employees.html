@@ -39,8 +39,6 @@
 
     .nav-brand { color: var(--white); font-size: 16px; font-weight: bold; letter-spacing: 1px; }
     .nav-links { display: flex; gap: 5px; }
-
-    /* Badge Alignment Wrapper */
     .nav-item-wrapper { position: relative; display: inline-block; }
 
     .nav-item {
@@ -56,7 +54,6 @@
 
     .nav-item.active { color: var(--white); background: rgba(255,255,255,0.1); border-bottom: 2px solid var(--primary); }
 
-    /* Request Notification Badge */
     .badge {
       position: absolute;
       top: -5px;
@@ -74,7 +71,7 @@
       padding: 2px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.2);
       pointer-events: none;
-      display: none; /* Hidden until data exists */
+      display: none;
     }
 
     /* Layout */
@@ -184,6 +181,32 @@
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 2000; padding: 20px; }
     .modal-content { background: white; padding: 25px; border-radius: 15px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
 
+    /* NEW: Salary Input with PHP Prefix */
+    .salary-input-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .salary-input-container::before {
+      content: "Php";
+      position: absolute;
+      left: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #64748b;
+      pointer-events: none;
+    }
+    .salary-input {
+      padding-left: 45px !important;
+    }
+
+    /* Remove arrows/spinners from numeric input */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
     @media (max-width: 600px) {
       .navbar { justify-content: center; gap: 10px; }
       .nav-brand { width: 100%; text-align: center; margin-bottom: 5px; }
@@ -260,10 +283,26 @@
     <div class="modal-content">
       <h3 id="modalTitle" style="margin-top:0; color: var(--secondary);">New Employee</h3>
       <input type="hidden" id="editId">
-      <div class="filter-group" style="margin-bottom: 20px;">
+      
+      <div class="filter-group" style="margin-bottom: 15px;">
         <label>Full Name</label>
         <input type="text" id="newName" placeholder="Enter Full Name">
       </div>
+
+      <div class="filter-group" style="margin-bottom: 20px;">
+        <label>Salary Rate</label>
+        <div class="salary-input-container">
+          <input 
+            type="number" 
+            id="newSalary" 
+            class="salary-input" 
+            placeholder="0.00" 
+            step="0.01" 
+            onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46"
+          >
+        </div>
+      </div>
+
       <div style="display:flex; justify-content:flex-end; gap:10px;">
         <button onclick="closeModal()" class="btn-action" style="background:#eee; color:#444;">Cancel</button>
         <button onclick="saveEmployee()" class="btn-action" style="background:var(--primary); color:white;">Save Employee</button>
@@ -285,7 +324,6 @@
     const employeeBody = document.getElementById('employee-body');
     const modalOverlay = document.getElementById('modalOverlay');
 
-    // --- Badge Logic for Navigation ---
     async function updateRequestBadge() {
       const now = new Date();
       const todayCutoff = new Date();
@@ -308,9 +346,10 @@
       }
     }
 
-    function openModal(id = null, name = '') {
+    function openModal(id = null, name = '', salary = '') {
       document.getElementById('editId').value = id || '';
       document.getElementById('newName').value = name;
+      document.getElementById('newSalary').value = salary;
       document.getElementById('modalTitle').innerText = id ? "Update Employee" : "Register Employee";
       modalOverlay.style.display = 'flex';
     }
@@ -320,7 +359,7 @@
     async function fetchEmployees() {
       employeeBody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:30px;"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>';
       
-      const { data, error } = await supabase.from('employees').select('id, full_name').order('id', { ascending: true });
+      const { data, error } = await supabase.from('employees').select('id, full_name, salary_rate').order('id', { ascending: true });
       if (error) {
         employeeBody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:red; padding:20px;">Error loading staff list.</td></tr>';
         return;
@@ -360,7 +399,7 @@
             <td style="font-weight:600; color:var(--secondary);">${emp.full_name}</td>
             <td>
               <div class="action-group" style="justify-content: flex-end;">
-                <button class="btn-edit" title="Edit" onclick="openModal('${emp.id}', '${emp.full_name}')">
+                <button class="btn-edit" title="Edit" onclick="openModal('${emp.id}', '${emp.full_name}', '${emp.salary_rate || ''}')">
                   <i class="fas fa-pen"></i>
                 </button>
                 <button class="btn-delete" title="Delete" onclick="deleteEmployee('${emp.id}', '${emp.full_name}')">
@@ -386,12 +425,18 @@
     async function saveEmployee() {
       const id = document.getElementById('editId').value;
       const name = document.getElementById('newName').value.trim();
+      const salary = document.getElementById('newSalary').value;
       if (!name) return alert("Please enter a name");
 
+      const employeeData = { 
+          full_name: name,
+          salary_rate: salary ? parseFloat(salary) : null 
+      };
+
       if (id) {
-        await supabase.from('employees').update({ full_name: name }).eq('id', id);
+        await supabase.from('employees').update(employeeData).eq('id', id);
       } else {
-        await supabase.from('employees').insert([{ full_name: name }]);
+        await supabase.from('employees').insert([employeeData]);
       }
       closeModal();
       fetchEmployees();
@@ -404,10 +449,8 @@
       }
     }
 
-    // Initial Load
     fetchEmployees();
     updateRequestBadge();
-    // Refresh badge every 60 seconds
     setInterval(updateRequestBadge, 60000);
   </script>
 </body>
