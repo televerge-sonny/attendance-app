@@ -40,6 +40,9 @@
     .nav-brand { color: var(--white); font-size: 16px; font-weight: bold; letter-spacing: 1px; }
     .nav-links { display: flex; gap: 5px; }
 
+    /* Badge Wrapper Logic */
+    .nav-item-wrapper { position: relative; display: inline-block; }
+
     .nav-item {
       text-decoration: none;
       color: #a4b0be;
@@ -48,9 +51,31 @@
       font-weight: 600;
       border-radius: 4px;
       transition: 0.3s;
+      display: block;
     }
 
     .nav-item.active { color: var(--white); background: rgba(255,255,255,0.1); border-bottom: 2px solid var(--primary); }
+
+    /* Notification Badge Style */
+    .badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background-color: var(--danger);
+      color: white;
+      font-size: 10px;
+      font-weight: bold;
+      min-width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      pointer-events: none;
+      display: none; /* Hidden until count > 0 */
+    }
 
     /* Layout Content */
     .main-container { 
@@ -149,11 +174,14 @@
   <nav class="navbar">
     <div class="nav-brand">ADMIN PORTAL</div>
     <div class="nav-links">
-      <a href="attendance.html" class="nav-item">LOGS</a>
-      <a href="requestmaterials.html" class="nav-item">REQUESTS</a>
-      <a href="employees.html" class="nav-item">STAFF</a>
-      <a href="projectsites.html" class="nav-item">SITES</a>
-      <a href="accounting.html" class="nav-item active">PAYROLL</a>
+      <div class="nav-item-wrapper"><a href="attendance.html" class="nav-item">LOGS</a></div>
+      <div class="nav-item-wrapper">
+        <a href="requestmaterials.html" class="nav-item">REQUESTS</a>
+        <div id="requestBadge" class="badge">0</div>
+      </div>
+      <div class="nav-item-wrapper"><a href="employees.html" class="nav-item">STAFF</a></div>
+      <div class="nav-item-wrapper"><a href="projectsites.html" class="nav-item">SITES</a></div>
+      <div class="nav-item-wrapper"><a href="accounting.html" class="nav-item active">PAYROLL</a></div>
     </div>
   </nav>
 
@@ -175,6 +203,42 @@
       </a>
     </div>
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
+  <script>
+    const SUPABASE_URL = 'https://xudyewfvojyplmhuvcua.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_NqLlWMfWBBXx2D_hwuJ2tw_eKhsh0sq';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    async function updateGlobalBadge() {
+      const now = new Date();
+      const todayCutoff = new Date();
+      todayCutoff.setHours(1, 0, 0, 0);
+      
+      // 1:00 AM Logic
+      if (now < todayCutoff) todayCutoff.setDate(todayCutoff.getDate() - 1);
+
+      const { data, error } = await supabase
+        .from('material_requests')
+        .select('created_at')
+        .gte('created_at', todayCutoff.toISOString());
+
+      if (!error && data) {
+        const badge = document.getElementById('requestBadge');
+        const count = data.length;
+        if (count > 0) {
+          badge.innerText = count;
+          badge.style.display = 'flex';
+        } else {
+          badge.style.display = 'none';
+        }
+      }
+    }
+
+    // Initial check and set interval for live updates
+    updateGlobalBadge();
+    setInterval(updateGlobalBadge, 60000); // Check every minute
+  </script>
 
 </body>
 </html>

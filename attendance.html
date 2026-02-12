@@ -40,6 +40,9 @@
     .nav-brand { color: var(--white); font-size: 16px; font-weight: bold; letter-spacing: 1px; }
     .nav-links { display: flex; gap: 5px; }
 
+    /* Badge Alignment Wrapper */
+    .nav-item-wrapper { position: relative; display: inline-block; }
+
     .nav-item {
       text-decoration: none;
       color: #a4b0be;
@@ -48,9 +51,31 @@
       font-weight: 600;
       border-radius: 4px;
       transition: 0.3s;
+      display: block;
     }
 
     .nav-item.active { color: var(--white); background: rgba(255,255,255,0.1); border-bottom: 2px solid var(--primary); }
+
+    /* Request Notification Badge */
+    .badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background-color: var(--danger);
+      color: white;
+      font-size: 10px;
+      font-weight: bold;
+      min-width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      pointer-events: none;
+      display: none;
+    }
 
     /* Layout */
     .main-container { max-width: 1100px; margin: 20px auto; padding: 0 15px; }
@@ -58,15 +83,8 @@
 
     /* Filter Card */
     .filter-card { 
-      background: var(--white); 
-      padding: 15px; 
-      border-radius: 12px; 
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 15px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-      border: 1px solid #edf2f7;
-      margin-bottom: 20px;
+      background: var(--white); padding: 15px; border-radius: 12px; display: grid; grid-template-columns: 1fr; gap: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #edf2f7; margin-bottom: 20px;
     }
 
     @media (min-width: 768px) {
@@ -75,76 +93,31 @@
     
     .filter-group { display: flex; flex-direction: column; gap: 5px; }
     .filter-group label { font-weight: 700; color: #718096; font-size: 11px; text-transform: uppercase; }
-    
     .search-input-wrapper { position: relative; }
     .search-input-wrapper i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #a0aec0; }
-    
-    input { 
-        padding: 10px 12px; 
-        border: 1px solid #e2e8f0; 
-        border-radius: 8px; 
-        width: 100%;
-        font-size: 14px;
-    }
+    input { padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 8px; width: 100%; font-size: 14px; }
     .search-input { padding-left: 35px !important; }
     
     .button-group { display: flex; gap: 8px; margin-top: 5px; }
     .btn-action { 
-        flex: 1;
-        padding: 12px; 
-        border: none; 
-        border-radius: 8px; 
-        cursor: pointer; 
-        font-weight: 600; 
-        font-size: 13px; 
-        display: flex; 
-        align-items: center; 
-        justify-content: center;
-        gap: 8px;
+        flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; 
+        font-weight: 600; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px;
     }
     .btn-reset { background: #edf2f7; color: #4a5568; }
     .btn-download { background: var(--primary); color: white; }
     .btn-delete-filtered { background: #fff5f5; color: var(--danger); border: 1px solid #fed7d7; }
 
     /* Table & Pagination */
-    .table-card { 
-        background: var(--white); 
-        border-radius: 12px; 
-        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-        overflow: hidden;
-    }
+    .table-card { background: var(--white); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden; }
     .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     table { width: 100%; border-collapse: collapse; min-width: 600px; }
     th { background: #f8fafc; color: #64748b; font-size: 11px; text-transform: uppercase; padding: 12px 15px; text-align: left; }
     td { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
-    
-    .site-tag { 
-        background: #ebf8ff; padding: 3px 8px; border-radius: 12px; 
-        font-size: 10px; font-weight: 700; color: #2b6cb0; border: 1px solid #bee3f8;
-    }
+    .site-tag { background: #ebf8ff; padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; color: #2b6cb0; border: 1px solid #bee3f8; }
 
-    /* Pagination Styles */
-    .pagination-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 15px 20px;
-        background: #fff;
-        border-top: 1px solid #f1f5f9;
-        flex-wrap: wrap;
-        gap: 15px;
-    }
+    .pagination-footer { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: #fff; border-top: 1px solid #f1f5f9; flex-wrap: wrap; gap: 15px; }
     .pg-controls { display: flex; align-items: center; gap: 12px; }
-    .pg-btn {
-        padding: 8px 14px;
-        border: 1px solid #e2e8f0;
-        background: white;
-        border-radius: 6px;
-        cursor: pointer;
-        color: var(--secondary);
-        font-size: 14px;
-        transition: 0.2s;
-    }
+    .pg-btn { padding: 8px 14px; border: 1px solid #e2e8f0; background: white; border-radius: 6px; cursor: pointer; color: var(--secondary); font-size: 14px; transition: 0.2s; }
     .pg-btn:hover:not(:disabled) { background: #f8fafc; border-color: var(--primary); color: var(--primary); }
     .pg-btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .pg-info { font-size: 13px; color: #64748b; font-weight: 500; }
@@ -162,11 +135,14 @@
   <nav class="navbar">
     <div class="nav-brand">ADMIN PORTAL</div>
     <div class="nav-links">
-      <a href="attendance.html" class="nav-item active">LOGS</a>
-      <a href="requestmaterials.html" class="nav-item">REQUESTS</a>
-      <a href="employees.html" class="nav-item">STAFF</a>
-      <a href="projectsites.html" class="nav-item">SITES</a>
-      <a href="accounting.html" class="nav-item">PAYROLL</a>
+      <div class="nav-item-wrapper"><a href="attendance.html" class="nav-item active">LOGS</a></div>
+      <div class="nav-item-wrapper">
+        <a href="requestmaterials.html" class="nav-item">REQUESTS</a>
+        <div id="requestBadge" class="badge">0</div>
+      </div>
+      <div class="nav-item-wrapper"><a href="employees.html" class="nav-item">STAFF</a></div>
+      <div class="nav-item-wrapper"><a href="projectsites.html" class="nav-item">SITES</a></div>
+      <div class="nav-item-wrapper"><a href="accounting.html" class="nav-item">PAYROLL</a></div>
     </div>
   </nav>
 
@@ -252,6 +228,29 @@
     let currentPage = 1;
     let rowsPerPage = 10;
 
+    // --- Badge Logic for Navigation ---
+    async function updateRequestBadge() {
+      const now = new Date();
+      const todayCutoff = new Date();
+      todayCutoff.setHours(1, 0, 0, 0);
+      if (now < todayCutoff) todayCutoff.setDate(todayCutoff.getDate() - 1);
+
+      const { data, error } = await supabase
+        .from('material_requests')
+        .select('created_at')
+        .gte('created_at', todayCutoff.toISOString());
+
+      if (!error && data) {
+        const badge = document.getElementById('requestBadge');
+        if (data.length > 0) {
+          badge.innerText = data.length;
+          badge.style.display = 'flex';
+        } else {
+          badge.style.display = 'none';
+        }
+      }
+    }
+
     async function fetchLogs() {
       const dateFrom = document.getElementById('dateFrom').value;
       const dateTo = document.getElementById('dateTo').value;
@@ -283,7 +282,6 @@
           (log.project_site && log.project_site.toLowerCase().includes(searchTerm))
         );
       });
-      
       currentPage = 1; 
       renderTable();
     }
@@ -317,17 +315,9 @@
       });
     }
 
-    function changePage(direction) {
-      currentPage += direction;
-      renderTable();
-    }
-
-    function updateRowsPerPage() {
-      rowsPerPage = parseInt(document.getElementById('rowsPerPage').value);
-      currentPage = 1;
-      renderTable();
-    }
-
+    function changePage(direction) { currentPage += direction; renderTable(); }
+    function updateRowsPerPage() { rowsPerPage = parseInt(document.getElementById('rowsPerPage').value); currentPage = 1; renderTable(); }
+    
     function downloadCSV() {
       if (filteredData.length === 0) return alert("No data to export.");
       let csvContent = "data:text/csv;charset=utf-8,ID,Name,Date,Login,Logout,Site\n";
@@ -362,7 +352,10 @@
       fetchLogs();
     }
 
+    // Initialize
     fetchLogs();
+    updateRequestBadge();
+    setInterval(updateRequestBadge, 60000);
   </script>
 </body>
 </html>
