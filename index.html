@@ -64,7 +64,6 @@
     .req-item { flex: 2; min-width: 0; }
     .req-qty { flex: 0.6; min-width: 0; text-align: center; }
     .req-unit { flex: 1; min-width: 0; }
-
     .request-row input, .request-row select { margin-bottom: 0; }
 
     .close-modal-btn { margin-top: 20px; padding: 12px 30px; background: #3498db; border: none; color: white; border-radius: 5px; cursor: pointer; font-weight: bold; }
@@ -143,43 +142,70 @@
     function openRequestModal() { reqModal.style.display = 'flex'; }
     function closeRequestModal() { reqModal.style.display = 'none'; }
     
+    // REVISED SUBMIT FUNCTION (With site_name validation)
     async function submitRequest() {
         const item = document.getElementById('reqItem').value.trim();
         const qty = document.getElementById('reqQty').value.trim();
         const unit = document.getElementById('reqUnit').value;
-        const site = siteSelect.value;
+        const selectedSiteInput = siteSelect.value; 
         const btn = document.getElementById('submitReqBtn');
         
-        if(!site) return alert("Please select a Project Site first.");
+        if(!selectedSiteInput) return alert("Please select a Project Site first.");
         if(!item || !qty) return alert("Please fill in both Item and Quantity.");
 
         btn.disabled = true;
-        btn.innerText = "Sending...";
+        btn.innerText = "Validating Site...";
 
-        const { error } = await supabase.from('material_requests').insert([{
-            site_name: site,
-            item_name: item,
-            quantity: qty,
-            unit: unit,
-            status: 'Pending'
-        }]);
+        try {
+            // 1. VALIDATION: Check if the site exists in project_sites table
+            const { data: siteData, error: siteError } = await supabase
+                .from('project_sites')
+                .select('site_name')
+                .eq('site_name', selectedSiteInput)
+                .maybeSingle();
 
-        btn.disabled = false;
-        btn.innerText = "Submit Request";
+            if (siteError) throw siteError;
+            if (!siteData) {
+                alert("The selected Project Site is no longer valid. Please refresh.");
+                btn.disabled = false;
+                btn.innerText = "Submit Request";
+                return;
+            }
 
-        if(error) {
-            alert("Error: " + error.message);
-        } else {
+            btn.innerText = "Sending...";
+
+            // 2. INSERTION: Use the validated site_name from siteData
+            const { error: insertError } = await supabase
+                .from('material_requests')
+                .insert([{
+                    site_name: siteData.site_name, // Validated name
+                    item_name: item,
+                    quantity: parseInt(qty),
+                    unit: unit,
+                    created_at: new Date().toISOString()
+                }]);
+
+            if (insertError) throw insertError;
+
+            // Success Actions
             closeRequestModal();
             showStatusModal(
                 "Request Sent", 
                 `<i class="fas fa-check-circle" style="font-size: 40px; color: #2ecc71; margin-bottom: 10px; display: block;"></i>
-                 Your request for <b>${qty} ${unit}</b> of <b>${item}</b> has been sent to the Admin for approval.`, 
+                 Your request for <b>${qty} ${unit}</b> of <b>${item}</b> has been submitted for <b>${siteData.site_name}</b>.`, 
                 "#2ecc71"
             );
-            // Reset fields
+            
+            // Reset form fields
             document.getElementById('reqItem').value = '';
             document.getElementById('reqQty').value = '';
+
+        } catch (err) {
+            console.error("Error:", err);
+            alert("Submission Failed: " + err.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Submit Request";
         }
     }
 
@@ -195,7 +221,8 @@
       siteSelect.innerHTML = '<option value="">-- Select Location --</option>';
       data.forEach(site => {
         const option = document.createElement('option');
-        option.value = site.site_name; option.textContent = site.site_name;
+        option.value = site.site_name; 
+        option.textContent = site.site_name;
         siteSelect.appendChild(option);
       });
     }
@@ -205,7 +232,6 @@
       headerEl.innerText = header; headerEl.style.color = color;
       document.getElementById('modalMessage').innerHTML = message;
       modal.style.display = 'flex';
-      input.value = ''; 
     }
 
     function closeStatusModal() { modal.style.display = 'none'; }
