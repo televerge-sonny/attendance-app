@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Accounting | Admin Portal</title>
+  <title>Payroll & Accounting | Admin Portal</title>
   <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/1063/1063376.png">
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1063/1063376.png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -22,7 +22,7 @@
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--bg); font-family: 'Segoe UI', sans-serif; color: var(--text); overflow-x: hidden; }
     
-    /* Navbar Styles */
+    /* Navbar */
     .navbar {
       background: var(--secondary);
       min-height: var(--nav-height);
@@ -52,7 +52,7 @@
 
     .nav-item.active { color: var(--white); background: rgba(255,255,255,0.1); border-bottom: 2px solid var(--primary); }
 
-    /* Construction Page Styles */
+    /* Layout Content */
     .main-container { 
       max-width: 1100px; 
       margin: 80px auto; 
@@ -76,7 +76,7 @@
 
     .construction-icon {
       font-size: 60px;
-      color: #f39c12; /* Warning Orange */
+      color: #f39c12; 
       margin-bottom: 20px;
       animation: gear-rotate 4s linear infinite;
     }
@@ -88,14 +88,15 @@
 
     .page-title { 
       margin: 0 0 10px 0; 
-      font-size: 24px; 
+      font-size: 22px; 
       color: var(--secondary); 
       font-weight: 800;
+      text-transform: uppercase;
     }
 
     .status-msg {
       color: #718096;
-      font-size: 16px;
+      font-size: 15px;
       line-height: 1.6;
       margin-bottom: 25px;
     }
@@ -112,8 +113,9 @@
     .progress-bar-fill {
       background: var(--primary);
       height: 100%;
-      width: 30%; 
+      width: 45%; 
       border-radius: 5px;
+      transition: width 1s ease-in-out;
     }
 
     .btn-back {
@@ -126,7 +128,7 @@
       padding: 12px 25px;
       border-radius: 8px;
       font-weight: 600;
-      font-size: 14px;
+      font-size: 13px;
       transition: 0.3s;
     }
 
@@ -148,6 +150,7 @@
     <div class="nav-brand"><i class="fas fa-shield-halved"></i> ADMIN PORTAL</div>
     <div class="nav-links">
       <a href="attendance.html" class="nav-item">LOGS</a>
+      <a href="requestmaterials.html" class="nav-item">REQUESTS</a>
       <a href="employees.html" class="nav-item">STAFF</a>
       <a href="projectsites.html" class="nav-item">SITES</a>
       <a href="accounting.html" class="nav-item active">PAYROLL</a>
@@ -156,19 +159,19 @@
 
   <div class="main-container">
     <div class="construction-card">
-      <i class="fas fa-cog construction-icon"></i>
-      <h1 class="page-title">SITE UNDER CONSTRUCTION</h1>
+      <i class="fas fa-screwdriver-wrench construction-icon"></i>
+      <h1 class="page-title">Module Under Construction</h1>
       <p class="status-msg">
-        The Accounting Module is currently being developed to handle payroll, expenses, and financial reporting. Check back soon!
+        We are currently building the Payroll & Accounting system to integrate automated salary calculations based on your attendance logs.
       </p>
       
       <div class="progress-bar-container">
         <div class="progress-bar-fill"></div>
       </div>
-      <p style="font-size: 12px; color: #a0aec0; margin-bottom: 30px;">Development Progress: 30%</p>
+      <p style="font-size: 12px; color: #a0aec0; margin-bottom: 30px; font-weight: 600;">Development Progress: 45%</p>
 
       <a href="attendance.html" class="btn-back">
-        <i class="fas fa-arrow-left"></i> Back to Dashboard
+        <i class="fas fa-house"></i> Return to Logs
       </a>
     </div>
   </div>

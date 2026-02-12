@@ -19,7 +19,7 @@
 
     .attendance-box { 
         background-color: #ffffff; 
-        padding: 20px 20px; 
+        padding: 20px; 
         border-radius: 12px; 
         box-shadow: 0 8px 24px rgba(0,0,0,0.1); 
         text-align: center; 
@@ -29,9 +29,9 @@
     
     h3 { color: #2c3e50; margin-bottom: 8px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
 
-    select, input[type="text"] { width: 95%; padding: 12px; margin-bottom: 25px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; background-color: #fff; outline: none; }
+    select, input[type="text"], input[type="number"] { width: 100%; padding: 12px 8px; margin-bottom: 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; background-color: #fff; outline: none; box-sizing: border-box; }
 
-    input[type="tel"] { width: 85%; padding: 15px; margin-bottom: 25px; border: 2px solid #ddd; border-radius: 8px; font-size: 28px; text-align: center; letter-spacing: 5px; outline: none; }
+    input[type="tel"] { width: 100%; padding: 15px; margin-bottom: 25px; border: 2px solid #ddd; border-radius: 8px; font-size: 28px; text-align: center; letter-spacing: 5px; outline: none; box-sizing: border-box; }
     input:focus, select:focus { border-color: #3498db; }
 
     .btn-container { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
@@ -58,13 +58,23 @@
     .btn:hover, .request-btn:hover { opacity: 0.9; transform: translateY(-1px); }
 
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px); }
-    .modal-content { background: white; padding: 30px; border-radius: 15px; text-align: center; max-width: 380px; width: 85%; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+    .modal-content { background: white; padding: 25px 15px; border-radius: 15px; text-align: center; max-width: 500px; width: 95%; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
     
-    .request-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-top: 15px; }
-    .request-grid input, .request-grid select { margin-bottom: 0; width: 100%; padding: 12px 8px; }
+    /* The Single Row Container */
+    .request-row { 
+        display: flex; 
+        gap: 8px; 
+        margin-bottom: 15px; 
+        align-items: center; 
+    }
+    .req-item { flex: 2; min-width: 0; } /* Takes most space */
+    .req-qty { flex: 0.6; min-width: 0; text-align: center; } /* Smallest */
+    .req-unit { flex: 1; min-width: 0; } /* Middle */
+
+    .request-row input, .request-row select { margin-bottom: 0; } /* Remove bottom margin for row layout */
 
     .close-modal-btn { margin-top: 20px; padding: 12px 30px; background: #3498db; border: none; color: white; border-radius: 5px; cursor: pointer; font-weight: bold; }
-    .submit-req-btn { margin-top: 20px; padding: 12px 30px; background: #2ecc71; border: none; color: white; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; }
+    .submit-req-btn { padding: 12px 30px; background: #2ecc71; border: none; color: white; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; }
   </style>
 </head>
 <body>
@@ -101,20 +111,23 @@
 
   <div class="modal-overlay" id="requestModal">
     <div class="modal-content">
-      <h3 style="margin-top: 0; color: #2c3e50;"><i class="fas fa-boxes-stacked"></i> Tools & Materials</h3>
-      <div class="request-grid">
-        <input type="text" id="reqItem" placeholder="Request Tools and Materials">
-        <select id="reqUnit">
+      <h3 style="margin-top: 0; margin-bottom: 15px; color: #2c3e50;"><i class="fas fa-boxes-stacked"></i> Tools & Materials</h3>
+      
+      <div class="request-row">
+        <input type="text" id="reqItem" class="req-item" placeholder="Item Name">
+        <input type="number" id="reqQty" class="req-qty" placeholder="0" min="1">
+        <select id="reqUnit" class="req-unit">
+          <option value="pcs">pcs</option>
           <option value="box">box</option>
-          <option value="cm">cm</option>
-          <option value="inch">inch</option>
+          <option value="set">set</option>
           <option value="kilo">kilo</option>
           <option value="liter">liter</option>
-          <option value="mm">mm</option>
-          <option value="pcs">pcs</option>
-          <option value="set">set</option>
+          <option value="meter">meter</option>
+          <option value="inch">inch</option>
+          <option value="inch">roll</option>
         </select>
       </div>
+
       <button class="submit-req-btn" onclick="submitRequest()">Submit Request</button>
       <button onclick="closeRequestModal()" style="background:none; border:none; color:#7f8c8d; cursor:pointer; margin-top:15px; text-decoration:underline;">Cancel</button>
     </div>
@@ -136,26 +149,27 @@
     function openRequestModal() { reqModal.style.display = 'flex'; }
     function closeRequestModal() { reqModal.style.display = 'none'; }
     
-    // Updated function for "Ongoing Construction" notification
     function submitRequest() {
         const item = document.getElementById('reqItem').value.trim();
+        const qty = document.getElementById('reqQty').value.trim();
         const unit = document.getElementById('reqUnit').value;
         
-        if(!item) return alert("Please enter the item name.");
+        if(!item || !qty) return alert("Fill in Item and Qty.");
         
         closeRequestModal();
         
-        // Notify user that this is still ongoing
         showStatusModal(
-            "Feature Coming Soon", 
+            "Request Noted", 
             `<i class="fas fa-person-digging" style="font-size: 30px; color: #3498db; margin-bottom: 10px; display: block;"></i>
-             Your request for <b>${item}</b> has been noted, but this module is <b>still under construction</b> and not yet functional.`, 
+             Request: <b>${qty} ${unit}</b> of <b>${item}</b><br><small>Status: Under Construction</small>`, 
             "#3498db"
         );
         
         document.getElementById('reqItem').value = '';
+        document.getElementById('reqQty').value = '';
     }
 
+    // (Remaining Supabase & Attendance logic stays the same)
     function updateStatus(isConnected) {
         if (isConnected) {
             dbStatus.className = 'connection-status status-connected';
@@ -167,31 +181,20 @@
     }
 
     async function loadSites() {
-      const { data, error } = await supabase
-        .from('project_sites')
-        .select('site_name')
-        .order('site_name', { ascending: true });
-
-      if (error) {
-        siteSelect.innerHTML = '<option value="">Error loading sites</option>';
-        updateStatus(false);
-        return;
-      }
-
+      const { data, error } = await supabase.from('project_sites').select('site_name').order('site_name', { ascending: true });
+      if (error) { updateStatus(false); return; }
       updateStatus(true);
       siteSelect.innerHTML = '<option value="">-- Select Location --</option>';
       data.forEach(site => {
         const option = document.createElement('option');
-        option.value = site.site_name;
-        option.textContent = site.site_name;
+        option.value = site.site_name; option.textContent = site.site_name;
         siteSelect.appendChild(option);
       });
     }
 
     function showStatusModal(header, message, color) {
       const headerEl = document.getElementById('modalHeader');
-      headerEl.innerText = header;
-      headerEl.style.color = color;
+      headerEl.innerText = header; headerEl.style.color = color;
       document.getElementById('modalMessage').innerHTML = message;
       modal.style.display = 'flex';
       input.value = ''; 
@@ -202,25 +205,12 @@
     async function handleAttendance(type) {
       const id = input.value.trim();
       const site = siteSelect.value;
-
       if (!id) return alert("Please enter your Employee ID.");
       if (type === 'login' && !site) return alert("Please select a Project Site to Login.");
 
-      const { data: employee, error: empError } = await supabase
-        .from('employees')
-        .select('full_name')
-        .eq('id', id)
-        .maybeSingle();
-
-      if (empError) {
-          updateStatus(false);
-          return alert("Connection Error. Please check internet.");
-      }
-
-      if (!employee) {
-        alert("Employee ID not found.");
-        return;
-      }
+      const { data: employee, error: empError } = await supabase.from('employees').select('full_name').eq('id', id).maybeSingle();
+      if (empError) return alert("Connection Error.");
+      if (!employee) return alert("Employee ID not found.");
 
       const now = new Date();
       const currentTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
@@ -228,45 +218,20 @@
 
       if (type === 'login') {
         const { error } = await supabase.from('attendance_logs').insert([{
-          employee_id: id,
-          full_name: employee.full_name,
-          date: currentDate,
-          login_time: currentTime,
-          project_site: site
+          employee_id: id, full_name: employee.full_name, date: currentDate, login_time: currentTime, project_site: site
         }]);
-
-        if (error) return alert("Error saving Login: " + error.message);
-        showStatusModal("Welcome!", `Hello, <b>${employee.full_name}</b>!<br>Checked in at ${site}<br>Time: ${currentTime}`, "#2ecc71");
-
+        if (error) return alert("Error saving Login.");
+        showStatusModal("Welcome!", `Hello, <b>${employee.full_name}</b>!<br>${site} @ ${currentTime}`, "#2ecc71");
       } else {
-        const { data: activeLog, error: logError } = await supabase
-          .from('attendance_logs')
-          .select('id, project_site')
-          .eq('employee_id', id)
-          .eq('date', currentDate)
-          .is('logout_time', null)
-          .order('id', { ascending: false })
-          .limit(1)
-          .maybeSingle();
-
-        if (!activeLog) {
-          alert("Cannot Logout: No active Login record found for today.");
-          return;
-        }
-
-        const { error: updateError } = await supabase
-          .from('attendance_logs')
-          .update({ logout_time: currentTime })
-          .eq('id', activeLog.id);
-
-        if (updateError) return alert("Error saving Logout.");
-        showStatusModal("Goodbye!", `Great job, <b>${employee.full_name}</b>!<br>Logged out from <b>${activeLog.project_site}</b><br>Time: ${currentTime}`, "#e74c3c");
+        const { data: activeLog } = await supabase.from('attendance_logs').select('id, project_site').eq('employee_id', id).eq('date', currentDate).is('logout_time', null).order('id', { ascending: false }).limit(1).maybeSingle();
+        if (!activeLog) return alert("No active Login record found.");
+        await supabase.from('attendance_logs').update({ logout_time: currentTime }).eq('id', activeLog.id);
+        showStatusModal("Goodbye!", `Great job, <b>${employee.full_name}</b>!<br>Out from ${activeLog.project_site} @ ${currentTime}`, "#e74c3c");
       }
     }
 
     document.getElementById('loginBtn').addEventListener('click', () => handleAttendance('login'));
     document.getElementById('logoutBtn').addEventListener('click', () => handleAttendance('logout'));
-
     loadSites();
   </script>
 </body>

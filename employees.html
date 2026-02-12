@@ -22,7 +22,7 @@
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--bg); font-family: 'Segoe UI', sans-serif; color: var(--text); overflow-x: hidden; }
     
-    /* Responsive Navbar */
+    /* Navbar */
     .navbar {
       background: var(--secondary);
       min-height: var(--nav-height);
@@ -49,13 +49,14 @@
       border-radius: 4px;
       transition: 0.3s;
     }
+
     .nav-item.active { color: var(--white); background: rgba(255,255,255,0.1); border-bottom: 2px solid var(--primary); }
 
-    /* Layout Containers */
-    .main-container { max-width: 900px; margin: 20px auto; padding: 0 15px; }
+    /* Layout */
+    .main-container { max-width: 1100px; margin: 20px auto; padding: 0 15px; }
     .page-title { margin: 0 0 15px 0; font-size: 20px; color: var(--secondary); }
 
-    /* Filter Card (From Attendance Setup) */
+    /* Filter Card */
     .filter-card { 
       background: var(--white); 
       padding: 15px; 
@@ -69,7 +70,7 @@
     }
 
     @media (min-width: 768px) {
-      .filter-card { grid-template-columns: 1fr auto; align-items: end; }
+      .filter-card { grid-template-columns: 2fr auto; align-items: end; }
     }
     
     .filter-group { display: flex; flex-direction: column; gap: 5px; }
@@ -79,74 +80,84 @@
     .search-input-wrapper i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #a0aec0; }
     
     input { 
-      padding: 10px 12px; 
-      border: 1px solid #e2e8f0; 
-      border-radius: 8px; 
-      width: 100%;
-      font-size: 14px;
-      outline: none;
+        padding: 10px 12px; 
+        border: 1px solid #e2e8f0; 
+        border-radius: 8px; 
+        width: 100%;
+        font-size: 14px;
+        outline: none;
     }
     .search-input { padding-left: 35px !important; }
     
-    .btn-register { 
-      background: var(--success); 
-      padding: 11px 20px; 
-      border-radius: 8px; 
-      color: white; 
-      border: none; 
-      cursor: pointer; 
-      font-weight: bold; 
-      font-size: 13px;
-      display: flex; 
-      align-items: center; 
-      justify-content: center;
-      gap: 8px;
+    .btn-action { 
+        padding: 12px 20px; 
+        border: none; 
+        border-radius: 8px; 
+        cursor: pointer; 
+        font-weight: 600; 
+        font-size: 13px; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center;
+        gap: 8px;
+        transition: 0.2s;
     }
+    .btn-register { background: var(--success); color: white; }
+    .btn-register:hover { opacity: 0.9; }
 
-    /* Table Styling */
-    .table-card { background: var(--white); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden; }
+    /* Table & Pagination */
+    .table-card { 
+        background: var(--white); 
+        border-radius: 12px; 
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
     .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    table { width: 100%; border-collapse: collapse; }
-    th { background: #f8fafc; color: #64748b; font-size: 10px; text-transform: uppercase; padding: 12px 15px; text-align: left; }
-    td { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
-
+    table { width: 100%; border-collapse: collapse; min-width: 500px; }
+    th { background: #f8fafc; color: #64748b; font-size: 11px; text-transform: uppercase; padding: 12px 15px; text-align: left; }
+    td { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+    
     .action-group { display: flex; gap: 8px; }
     .btn-edit, .btn-delete { 
       border: none; border-radius: 6px; cursor: pointer; 
       width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; 
       transition: 0.2s;
     }
-    .btn-edit { background: #e1f5fe; color: #03a9f4; }
-    .btn-delete { background: #ffebee; color: #f44336; }
-    .btn-edit:hover { background: #03a9f4; color: white; }
-    .btn-delete:hover { background: #f44336; color: white; }
+    .btn-edit { background: #ebf8ff; color: #2b6cb0; }
+    .btn-delete { background: #fff5f5; color: #e53e3e; }
+    .btn-edit:hover { background: #2b6cb0; color: white; }
+    .btn-delete:hover { background: #e53e3e; color: white; }
 
-    /* Pagination Footer (From Attendance Setup) */
+    /* Pagination Styles */
     .pagination-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 20px;
-      background: #fff;
-      border-top: 1px solid #f1f5f9;
-      flex-wrap: wrap;
-      gap: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        background: #fff;
+        border-top: 1px solid #f1f5f9;
+        flex-wrap: wrap;
+        gap: 15px;
     }
     .pg-controls { display: flex; align-items: center; gap: 12px; }
     .pg-btn {
-      padding: 8px 14px;
-      border: 1px solid #e2e8f0;
-      background: white;
-      border-radius: 6px;
-      cursor: pointer;
-      color: var(--secondary);
+        padding: 8px 14px;
+        border: 1px solid #e2e8f0;
+        background: white;
+        border-radius: 6px;
+        cursor: pointer;
+        color: var(--secondary);
+        font-size: 14px;
+        transition: 0.2s;
     }
+    .pg-btn:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
     .pg-btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .pg-info { font-size: 13px; color: #64748b; font-weight: 500; }
+    .rows-select { padding: 5px; border-radius: 5px; border: 1px solid #e2e8f0; margin: 0 5px; cursor: pointer; }
 
     /* Modal Styling */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 2000; padding: 20px; }
-    .modal-content { background: white; padding: 25px; border-radius: 15px; width: 100%; max-width: 350px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+    .modal-content { background: white; padding: 25px; border-radius: 15px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
 
     @media (max-width: 600px) {
       .navbar { justify-content: center; gap: 10px; }
@@ -161,6 +172,7 @@
     <div class="nav-brand"><i class="fas fa-shield-halved"></i> ADMIN PORTAL</div>
     <div class="nav-links">
       <a href="attendance.html" class="nav-item">LOGS</a>
+      <a href="requestmaterials.html" class="nav-item">REQUESTS</a>
       <a href="employees.html" class="nav-item active">STAFF</a>
       <a href="projectsites.html" class="nav-item">SITES</a>
       <a href="accounting.html" class="nav-item">PAYROLL</a>
@@ -178,52 +190,55 @@
           <input type="text" id="employeeSearch" class="search-input" placeholder="Search by name or ID..." onkeyup="filterEmployees()">
         </div>
       </div>
-      <button class="btn-register" onclick="openModal()">
-        <i class="fas fa-plus"></i> Register New
+      <button class="btn-action btn-register" onclick="openModal()">
+        <i class="fas fa-plus"></i><span>Register New</span>
       </button>
     </div>
 
     <div class="table-card">
-      <div class="table-responsive">
-        <table>
-          <thead>
-            <tr>
-              <th style="width: 80px;">ID</th> 
-              <th>Full Name</th>
-              <th style="width: 100px;">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="employee-body"></tbody>
-        </table>
-      </div>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                  <tr>
+                    <th style="width: 100px;">ID</th> 
+                    <th>Full Name</th>
+                    <th style="width: 120px; text-align: right;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="employee-body"></tbody>
+            </table>
+        </div>
 
-      <div class="pagination-footer">
-          <div class="pg-info">
-              Show 
-              <select id="rowsPerPage" style="padding:5px; border-radius:5px; border:1px solid #e2e8f0;" onchange="updateRowsPerPage()">
-                  <option value="10">10</option>
-                  <option value="20">20</option>
-                  <option value="50">50</option>
-              </select> 
-              rows
-          </div>
-          <div class="pg-controls">
-              <button class="pg-btn" id="prevBtn" onclick="changePage(-1)"><i class="fas fa-chevron-left"></i></button>
-              <span class="pg-info" id="pageNumberDisplay">Page 1 of 1</span>
-              <button class="pg-btn" id="nextBtn" onclick="changePage(1)"><i class="fas fa-chevron-right"></i></button>
-          </div>
-      </div>
+        <div class="pagination-footer">
+            <div class="pg-info">
+                Show 
+                <select id="rowsPerPage" class="rows-select" onchange="updateRowsPerPage()">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                </select> 
+                rows
+            </div>
+            <div class="pg-controls">
+                <button class="pg-btn" id="prevBtn" onclick="changePage(-1)"><i class="fas fa-chevron-left"></i></button>
+                <span class="pg-info" id="pageNumberDisplay">Page 1 of 1</span>
+                <button class="pg-btn" id="nextBtn" onclick="changePage(1)"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
     </div>
   </div>
 
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal-content">
-      <h3 id="modalTitle" style="margin-top:0;">New Employee</h3>
+      <h3 id="modalTitle" style="margin-top:0; color: var(--secondary);">New Employee</h3>
       <input type="hidden" id="editId">
-      <input type="text" id="newName" placeholder="Enter Full Name" style="margin-bottom:15px;">
+      <div class="filter-group" style="margin-bottom: 20px;">
+        <label>Full Name</label>
+        <input type="text" id="newName" placeholder="Enter Full Name">
+      </div>
       <div style="display:flex; justify-content:flex-end; gap:10px;">
-        <button onclick="closeModal()" style="padding:10px 15px; cursor:pointer; border:none; border-radius:6px; background:#eee;">Cancel</button>
-        <button onclick="saveEmployee()" style="padding:10px 15px; background:var(--primary); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Save</button>
+        <button onclick="closeModal()" class="btn-action" style="background:#eee; color:#444;">Cancel</button>
+        <button onclick="saveEmployee()" class="btn-action" style="background:var(--primary); color:white;">Save Employee</button>
       </div>
     </div>
   </div>
@@ -252,9 +267,14 @@
     function closeModal() { modalOverlay.style.display = 'none'; }
 
     async function fetchEmployees() {
+      employeeBody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:30px;"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>';
+      
       const { data, error } = await supabase.from('employees').select('id, full_name').order('id', { ascending: true });
-      if (error) return;
-      allEmployees = data;
+      if (error) {
+        employeeBody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:red; padding:20px;">Error loading staff list.</td></tr>';
+        return;
+      }
+      allEmployees = data || [];
       filterEmployees();
     }
 
@@ -278,17 +298,17 @@
 
       employeeBody.innerHTML = '';
       if (paginatedItems.length === 0) {
-        employeeBody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:20px; color:#94a3b8;">No records found.</td></tr>';
+        employeeBody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:30px; color:#94a3b8;">No records found.</td></tr>';
         return;
       }
       
       paginatedItems.forEach(emp => {
         employeeBody.innerHTML += `
           <tr>
-            <td><span style="color:#94a3b8; font-weight:bold;">#${emp.id}</span></td>
-            <td style="font-weight:600;">${emp.full_name}</td>
+            <td><span style="color:#64748b; font-weight:bold;">#${emp.id}</span></td>
+            <td style="font-weight:600; color:var(--secondary);">${emp.full_name}</td>
             <td>
-              <div class="action-group">
+              <div class="action-group" style="justify-content: flex-end;">
                 <button class="btn-edit" title="Edit" onclick="openModal('${emp.id}', '${emp.full_name}')">
                   <i class="fas fa-pen"></i>
                 </button>
@@ -301,7 +321,11 @@
       });
     }
 
-    function changePage(direction) { currentPage += direction; renderTable(); }
+    function changePage(direction) { 
+        currentPage += direction; 
+        renderTable(); 
+    }
+
     function updateRowsPerPage() { 
       rowsPerPage = parseInt(document.getElementById('rowsPerPage').value); 
       currentPage = 1; 
@@ -323,7 +347,7 @@
     }
 
     async function deleteEmployee(id, name) {
-      if (confirm(`Remove ${name} (ID: #${id})?`)) {
+      if (confirm(`Are you sure you want to remove ${name} (ID: #${id})?`)) {
         await supabase.from('employees').delete().eq('id', id);
         fetchEmployees();
       }
