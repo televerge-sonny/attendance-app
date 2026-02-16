@@ -17,7 +17,7 @@
       --text: #2f3542;
       --white: #ffffff;
       --nav-height: 60px;
-      --grey-bell: #bdc3c7;
+      --grey-bell: #d1d8e0; 
     }
 
     * { box-sizing: border-box; }
@@ -40,10 +40,7 @@
 
     .nav-brand { color: var(--white); font-size: 16px; font-weight: bold; letter-spacing: 1px; }
     .nav-links { display: flex; gap: 5px; }
-
-    /* Badge Wrapper */
     .nav-item-wrapper { position: relative; display: inline-block; }
-
     .nav-item {
       text-decoration: none;
       color: #a4b0be;
@@ -54,10 +51,8 @@
       transition: 0.3s;
       display: block;
     }
-
     .nav-item.active { color: var(--white); background: rgba(255,255,255,0.1); border-bottom: 2px solid var(--primary); }
 
-    /* Red Circle Badge */
     .badge {
       position: absolute;
       top: -5px;
@@ -75,7 +70,7 @@
       padding: 2px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.2);
       pointer-events: none;
-      display: none; /* Hidden by default */
+      display: none; 
     }
 
     /* Layout */
@@ -104,12 +99,13 @@
     .btn-action { 
         flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; 
         font-weight: 600; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px;
+        transition: 0.2s;
     }
     .btn-reset { background: #edf2f7; color: #4a5568; }
     .btn-download { background: var(--primary); color: white; }
     .btn-clear { background: #fff5f5; color: var(--danger); border: 1px solid #fed7d7; }
 
-    /* Table */
+    /* Table Styling */
     .table-card { background: var(--white); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden; }
     .table-responsive { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; min-width: 600px; }
@@ -120,10 +116,9 @@
     .qty-badge { font-weight: bold; color: var(--secondary); }
     .status-cell { text-align: right; width: 50px; }
 
-    /* Alert Bell Styling */
-    .alert-bell { font-size: 16px; display: inline-block; transform-origin: top center; }
+    /* Bell Icons */
+    .alert-bell { font-size: 16px; display: inline-block; transform-origin: top center; color: var(--grey-bell); }
     .bell-urgent { color: var(--danger); animation: swing 2s infinite ease-in-out; }
-    .bell-past { color: var(--grey-bell); }
 
     @keyframes swing {
       0% { transform: rotate(0deg); }
@@ -250,33 +245,13 @@
       const { data, error } = await query.order('created_at', { ascending: false });
 
       if (error) {
-        body.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red; padding:30px;">Error.</td></tr>';
+        body.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red; padding:30px;">Error loading data.</td></tr>';
         return;
       }
 
       currentData = data || []; 
-      updateBadge(); // Update nav badge whenever data is fetched
+      updateBadge(); 
       filterTable();
-    }
-
-    function updateBadge() {
-      const badge = document.getElementById('requestBadge');
-      const now = new Date();
-      const todayCutoff = new Date();
-      todayCutoff.setHours(1, 0, 0, 0);
-      
-      // 1:00 AM Logic
-      if (now < todayCutoff) todayCutoff.setDate(todayCutoff.getDate() - 1);
-
-      // Count only requests from the current active period
-      const newRequestsCount = currentData.filter(item => new Date(item.created_at) >= todayCutoff).length;
-
-      if (newRequestsCount > 0) {
-        badge.innerText = newRequestsCount;
-        badge.style.display = 'flex';
-      } else {
-        badge.style.display = 'none';
-      }
     }
 
     function renderTable() {
@@ -299,33 +274,71 @@
       todayCutoff.setHours(1, 0, 0, 0); 
       if (now < todayCutoff) todayCutoff.setDate(todayCutoff.getDate() - 1);
 
-      const yesterdayCutoff = new Date(todayCutoff);
-      yesterdayCutoff.setDate(yesterdayCutoff.getDate() - 1);
-
-      body.innerHTML = '';
-      paginatedItems.forEach(item => {
+      body.innerHTML = paginatedItems.map(item => {
         const itemDate = new Date(item.created_at);
-        let bellHtml = '';
+        const isUrgent = itemDate >= todayCutoff;
+        // Bell is always there. It only gets the 'bell-urgent' class if requested today.
+        const bellClass = isUrgent ? 'fas fa-bell alert-bell bell-urgent' : 'fas fa-bell alert-bell';
 
-        if (itemDate >= todayCutoff) {
-          bellHtml = `<i class="fas fa-bell alert-bell bell-urgent"></i>`;
-        } else if (itemDate >= yesterdayCutoff) {
-          bellHtml = `<i class="fas fa-bell alert-bell bell-past"></i>`;
-        }
-
-        body.innerHTML += `
+        return `
           <tr>
             <td style="font-weight:600; color:var(--secondary);">${item.item_name || 'N/A'}</td>
             <td class="qty-badge">${item.quantity || 0}</td>
             <td>${item.unit || '-'}</td>
             <td><span class="site-tag">${item.site_name || 'No Site'}</span></td>
             <td>${item.created_at ? new Date(item.created_at).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) : 'N/A'}</td>
-            <td class="status-cell">${bellHtml}</td>
+            <td class="status-cell"><i class="${bellClass}"></i></td>
           </tr>`;
-      });
+      }).join('');
     }
 
-    // (Standard functions for filtering and pagination)
+    // --- Action Functions ---
+
+    async function clearFilteredRequests() {
+      const dateFrom = document.getElementById('dateFrom').value;
+      const dateTo = document.getElementById('dateTo').value;
+
+      // Rule: Only delete if a date filter is active
+      if (!dateFrom && !dateTo) {
+        alert("Select a date range first");
+        return;
+      }
+
+      if (filteredData.length === 0) {
+        alert("Nothing to delete in this date range.");
+        return;
+      }
+
+      const confirmMsg = `Are you sure? This will PERMANENTLY DELETE ${filteredData.length} records within the selected date range.`;
+      if (!confirm(confirmMsg)) return;
+
+      const idsToDelete = filteredData.map(item => item.id);
+      const { error } = await supabase.from('material_requests').delete().in('id', idsToDelete);
+
+      if (error) {
+        alert("Delete failed: " + error.message);
+      } else {
+        alert("Data cleared successfully.");
+        fetchRequests();
+      }
+    }
+
+    function exportCSV() {
+      if (filteredData.length === 0) return alert("No data to export.");
+      const headers = ["Item", "Qty", "Unit", "Site", "Date"];
+      const csvData = filteredData.map(row => [
+        `"${row.item_name}"`, row.quantity, `"${row.unit}"`, `"${row.site_name}"`, new Date(row.created_at).toLocaleDateString()
+      ].join(","));
+      const blob = new Blob([[headers.join(","), ...csvData].join("\n")], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Export_${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+    }
+
+    // --- Helpers ---
+
     function filterTable() {
       const searchTerm = document.getElementById('searchInput').value.toLowerCase();
       filteredData = currentData.filter(item => {
@@ -336,11 +349,27 @@
       currentPage = 1; 
       renderTable();
     }
+
+    function updateBadge() {
+      const badge = document.getElementById('requestBadge');
+      const now = new Date();
+      const todayCutoff = new Date();
+      todayCutoff.setHours(1, 0, 0, 0);
+      if (now < todayCutoff) todayCutoff.setDate(todayCutoff.getDate() - 1);
+      const newRequestsCount = currentData.filter(item => new Date(item.created_at) >= todayCutoff).length;
+      badge.innerText = newRequestsCount;
+      badge.style.display = newRequestsCount > 0 ? 'flex' : 'none';
+    }
+
+    function resetFilters() {
+      document.getElementById('dateFrom').value = '';
+      document.getElementById('dateTo').value = '';
+      document.getElementById('searchInput').value = '';
+      fetchRequests();
+    }
+
     function changePage(direction) { currentPage += direction; renderTable(); }
     function updateRowsPerPage() { rowsPerPage = parseInt(document.getElementById('rowsPerPage').value); currentPage = 1; renderTable(); }
-    function resetFilters() { document.getElementById('dateFrom').value = ''; document.getElementById('dateTo').value = ''; document.getElementById('searchInput').value = ''; fetchRequests(); }
-    async function clearFilteredRequests() { /* implementation same as previous */ }
-    function exportCSV() { /* implementation same as previous */ }
 
     fetchRequests();
   </script>
