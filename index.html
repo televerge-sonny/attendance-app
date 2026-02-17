@@ -38,6 +38,7 @@
     .btn { flex: 1; padding: 16px; border: none; border-radius: 8px; color: white; font-size: 16px; cursor: pointer; font-weight: bold; transition: opacity 0.2s; }
     .login-btn { background-color: #2ecc71; }
     .logout-btn { background-color: #e74c3c; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
     
     .request-btn { 
         width: 90%; 
@@ -55,7 +56,7 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         transition: 0.2s;
     }
-    .btn:hover, .request-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn:hover:not(:disabled), .request-btn:hover { opacity: 0.9; transform: translateY(-1px); }
 
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px); }
     .modal-content { background: white; padding: 25px 15px; border-radius: 15px; text-align: center; max-width: 500px; width: 95%; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
@@ -96,6 +97,7 @@
 
   <div class="modal-overlay" id="statusModal">
     <div class="modal-content">
+      <div id="modalIcon"></div>
       <h2 id="modalHeader" style="margin-top: 0;"></h2>
       <p id="modalMessage" style="font-size: 18px; line-height: 1.5; color: #444;"></p>
       <button class="close-modal-btn" onclick="closeStatusModal()">OK</button>
@@ -138,11 +140,12 @@
     const reqModal = document.getElementById('requestModal');
     const dbStatus = document.getElementById('dbStatus');
     const statusText = document.getElementById('statusText');
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
 
     function openRequestModal() { reqModal.style.display = 'flex'; }
     function closeRequestModal() { reqModal.style.display = 'none'; }
     
-    // REVISED SUBMIT FUNCTION (With site_name validation)
     async function submitRequest() {
         const item = document.getElementById('reqItem').value.trim();
         const qty = document.getElementById('reqQty').value.trim();
@@ -154,10 +157,9 @@
         if(!item || !qty) return alert("Please fill in both Item and Quantity.");
 
         btn.disabled = true;
-        btn.innerText = "Validating Site...";
+        btn.innerText = "Validating...";
 
         try {
-            // 1. VALIDATION: Check if the site exists in project_sites table
             const { data: siteData, error: siteError } = await supabase
                 .from('project_sites')
                 .select('site_name')
@@ -165,20 +167,12 @@
                 .maybeSingle();
 
             if (siteError) throw siteError;
-            if (!siteData) {
-                alert("The selected Project Site is no longer valid. Please refresh.");
-                btn.disabled = false;
-                btn.innerText = "Submit Request";
-                return;
-            }
+            if (!siteData) throw new Error("Selected Site no longer valid.");
 
-            btn.innerText = "Sending...";
-
-            // 2. INSERTION: Use the validated site_name from siteData
             const { error: insertError } = await supabase
                 .from('material_requests')
                 .insert([{
-                    site_name: siteData.site_name, // Validated name
+                    site_name: siteData.site_name,
                     item_name: item,
                     quantity: parseInt(qty),
                     unit: unit,
@@ -187,21 +181,18 @@
 
             if (insertError) throw insertError;
 
-            // Success Actions
             closeRequestModal();
             showStatusModal(
                 "Request Sent", 
                 `<i class="fas fa-check-circle" style="font-size: 40px; color: #2ecc71; margin-bottom: 10px; display: block;"></i>
-                 Your request for <b>${qty} ${unit}</b> of <b>${item}</b> has been submitted for <b>${siteData.site_name}</b>.`, 
+                 Your request for <b>${qty} ${unit}</b> of <b>${item}</b> has been submitted.`, 
                 "#2ecc71"
             );
             
-            // Reset form fields
             document.getElementById('reqItem').value = '';
             document.getElementById('reqQty').value = '';
 
         } catch (err) {
-            console.error("Error:", err);
             alert("Submission Failed: " + err.message);
         } finally {
             btn.disabled = false;
@@ -234,38 +225,63 @@
       modal.style.display = 'flex';
     }
 
-    function closeStatusModal() { modal.style.display = 'none'; }
+    function closeStatusModal() { 
+        modal.style.display = 'none'; 
+        input.focus(); // Returns focus to input for next user
+    }
 
     async function handleAttendance(type) {
       const id = input.value.trim();
       const site = siteSelect.value;
+      const currentBtn = type === 'login' ? loginBtn : logoutBtn;
+
       if (!id) return alert("Please enter your Employee ID.");
       if (type === 'login' && !site) return alert("Please select a Project Site to Login.");
 
-      const { data: employee, error: empError } = await supabase.from('employees').select('full_name').eq('id', id).maybeSingle();
-      if (empError) return alert("Connection Error.");
-      if (!employee) return alert("Employee ID not found.");
+      // Disable buttons to prevent double submission
+      loginBtn.disabled = true;
+      logoutBtn.disabled = true;
 
-      const now = new Date();
-      const currentTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-      const currentDate = now.toISOString().split('T')[0];
+      try {
+          const { data: employee, error: empError } = await supabase.from('employees').select('full_name').eq('id', id).maybeSingle();
+          if (empError) throw new Error("Connection Error.");
+          if (!employee) throw new Error("Employee ID not found.");
 
-      if (type === 'login') {
-        const { error } = await supabase.from('attendance_logs').insert([{
-          employee_id: id, full_name: employee.full_name, date: currentDate, login_time: currentTime, project_site: site
-        }]);
-        if (error) return alert("Error saving Login.");
-        showStatusModal("Welcome!", `Hello, <b>${employee.full_name}</b>!<br>${site} @ ${currentTime}`, "#2ecc71");
-      } else {
-        const { data: activeLog } = await supabase.from('attendance_logs').select('id, project_site').eq('employee_id', id).eq('date', currentDate).is('logout_time', null).order('id', { ascending: false }).limit(1).maybeSingle();
-        if (!activeLog) return alert("No active Login record found.");
-        await supabase.from('attendance_logs').update({ logout_time: currentTime }).eq('id', activeLog.id);
-        showStatusModal("Goodbye!", `Great job, <b>${employee.full_name}</b>!<br>Out from ${activeLog.project_site} @ ${currentTime}`, "#e74c3c");
+          const now = new Date();
+          const currentTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+          const currentDate = now.toISOString().split('T')[0];
+
+          if (type === 'login') {
+            const { error } = await supabase.from('attendance_logs').insert([{
+              employee_id: id, full_name: employee.full_name, date: currentDate, login_time: currentTime, project_site: site
+            }]);
+            if (error) throw new Error("Error saving Login.");
+            
+            showStatusModal("Welcome!", `Hello, <b>${employee.full_name}</b>!<br>${site} @ ${currentTime}`, "#2ecc71");
+          } else {
+            const { data: activeLog } = await supabase.from('attendance_logs').select('id, project_site').eq('employee_id', id).eq('date', currentDate).is('logout_time', null).order('id', { ascending: false }).limit(1).maybeSingle();
+            
+            if (!activeLog) throw new Error("No active Login record found.");
+            
+            const { error: updateError } = await supabase.from('attendance_logs').update({ logout_time: currentTime }).eq('id', activeLog.id);
+            if (updateError) throw new Error("Error saving Logout.");
+
+            showStatusModal("Goodbye!", `Great job, <b>${employee.full_name}</b>!<br>Out from ${activeLog.project_site} @ ${currentTime}`, "#e74c3c");
+          }
+
+          // SUCCESS: Reset the input field
+          input.value = '';
+
+      } catch (err) {
+          alert(err.message);
+      } finally {
+          loginBtn.disabled = false;
+          logoutBtn.disabled = false;
       }
     }
 
-    document.getElementById('loginBtn').addEventListener('click', () => handleAttendance('login'));
-    document.getElementById('logoutBtn').addEventListener('click', () => handleAttendance('logout'));
+    loginBtn.addEventListener('click', () => handleAttendance('login'));
+    logoutBtn.addEventListener('click', () => handleAttendance('logout'));
     loadSites();
   </script>
 </body>
