@@ -76,6 +76,15 @@
     .pagination-footer { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: #fff; border-top: 1px solid #f1f5f9; }
     .pg-btn { padding: 6px 12px; border: 1px solid #e2e8f0; background: white; border-radius: 6px; cursor: pointer; }
     .pg-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+     /* LEGEND UNDER SEARCH BAR */
+    .legend-container { display: flex; gap: 15px; margin-top: 10px; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #4a5568; }
+    .legend-color { width: 18px; height: 18px; border-radius: 4px; display: inline-block; }
+
+    .legend-blue { background-color: var(--cal-blue); }
+    .legend-red { background-color: var(--danger); }
+    .legend-green { background-color: var(--success); }
   </style>
 </head>
 <body>
@@ -100,6 +109,11 @@
         <div class="search-input-wrapper">
           <i class="fas fa-search"></i>
           <input type="text" id="payrollSearch" class="search-input" placeholder="Search by name..." onkeyup="filterPayroll()">
+        </div>
+        <div class="legend-container">
+          <div class="legend-item"><span class="legend-color legend-blue"></span> Successful login & logout, unpaid</div>
+          <div class="legend-item"><span class="legend-color legend-red"></span> Missing logout</div>
+          <div class="legend-item"><span class="legend-color legend-green"></span> Successfully paid</div>
         </div>
       </div>
     </div>
